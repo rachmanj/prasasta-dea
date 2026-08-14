@@ -144,7 +144,7 @@ export default function BillShow({ bill, cashAccounts }: { bill: any; cashAccoun
                         <DatePicker
                             style={{ width: '100%' }}
                             value={data.date ? dayjs(data.date) : null}
-                            onChange={(_, ds) => setData('date', ds)}
+                            onChange={(_, ds) => setData('date', ds ?? '')}
                         />
                     </Form.Item>
                     <Form.Item label="Rekening Kas / Bank" validateStatus={errors.account_id ? 'error' : undefined} help={errors.account_id}>

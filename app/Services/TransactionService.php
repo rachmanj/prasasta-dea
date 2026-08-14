@@ -74,7 +74,7 @@ class TransactionService
 
     private function buildLines(array $data): array
     {
-        $amount = (float) $data['amount'];
+        $amount = (float) ($data['amount'] ?? 0);
         $description = $data['description'] ?? null;
 
         return match ($data['type']) {

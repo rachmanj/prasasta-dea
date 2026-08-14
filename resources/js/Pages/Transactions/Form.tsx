@@ -175,7 +175,7 @@ export default function TransactionForm({
                         <DatePicker
                             style={{ width: '100%' }}
                             value={data.date ? dayjs(data.date) : null}
-                            onChange={(_, ds) => setData('date', ds)}
+                            onChange={(_, ds) => setData('date', ds ?? '')}
                         />
                     </Form.Item>
 

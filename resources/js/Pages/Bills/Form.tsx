@@ -80,7 +80,7 @@ export default function BillForm({ type, contacts, offsetAccounts }: Props) {
                         <DatePicker
                             style={{ width: '100%' }}
                             value={data.date ? dayjs(data.date) : null}
-                            onChange={(_, ds) => setData('date', ds)}
+                            onChange={(_, ds) => setData('date', ds ?? '')}
                         />
                     </Form.Item>
 
@@ -88,7 +88,7 @@ export default function BillForm({ type, contacts, offsetAccounts }: Props) {
                         <DatePicker
                             style={{ width: '100%' }}
                             value={data.due_date ? dayjs(data.due_date) : null}
-                            onChange={(_, ds) => setData('due_date', ds)}
+                            onChange={(_, ds) => setData('due_date', ds ?? '')}
                         />
                     </Form.Item>
 

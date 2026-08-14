@@ -1,5 +1,4 @@
 import '../css/app.css';
-import './bootstrap';
 
 import { createInertiaApp } from '@inertiajs/react';
 import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
