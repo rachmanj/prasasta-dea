@@ -6,6 +6,9 @@ import {
     Button,
     Card,
     Col,
+    DatePicker,
+    Form,
+    InputNumber,
     Modal,
     Row,
     Select,
@@ -15,6 +18,7 @@ import {
     Tag,
     Upload,
 } from 'antd';
+import dayjs from 'dayjs';
 import { useState } from 'react';
 
 interface BankAccount {
@@ -25,19 +29,33 @@ interface BankAccount {
     account_number?: string;
 }
 
+interface Reconciliation {
+    id: number;
+    as_of_date: string;
+    closing_balance: number | string;
+    status: string;
+}
+
 interface Props {
     bankAccounts: BankAccount[];
     selectedAccount: BankAccount | null;
     lines: any[];
     candidates: any[];
+    reconciliations: Reconciliation[];
     balances: { id: number; code: string; name: string; balance: number }[];
 }
+
+const currencyFormatter = (v?: number | string) =>
+    `Rp ${Number(v ?? 0).toLocaleString('id-ID')}`;
+const currencyParser = (v?: string) =>
+    Number((v ?? '').replace(/[^\d]/g, '')) || 0;
 
 export default function ReconciliationsIndex({
     bankAccounts,
     selectedAccount,
     lines,
     candidates,
+    reconciliations,
     balances,
 }: Props) {
     const [importOpen, setImportOpen] = useState(false);
@@ -45,9 +63,21 @@ export default function ReconciliationsIndex({
         ? balances.find((b) => b.id === selectedAccount.id)
         : null;
 
+    const latestReconciliation = reconciliations[0] ?? null;
+    const selisih =
+        selectedBalance && latestReconciliation
+            ? selectedBalance.balance - Number(latestReconciliation.closing_balance)
+            : null;
+
     const importForm = useForm({
         account_id: selectedAccount?.id as number | undefined,
         file: null as File | null,
+    });
+
+    const completeForm = useForm({
+        account_id: selectedAccount?.id as number | undefined,
+        as_of_date: dayjs().format('YYYY-MM-DD'),
+        closing_balance: 0,
     });
 
     const txAmount = (tx: any) =>
@@ -124,6 +154,36 @@ export default function ReconciliationsIndex({
         });
     };
 
+    const completeSubmit = () => {
+        completeForm.post(route('reconciliations.store'));
+    };
+
+    const historyColumns = [
+        {
+            title: 'Per Tanggal',
+            dataIndex: 'as_of_date',
+            key: 'as_of_date',
+        },
+        {
+            title: 'Saldo Penutup',
+            dataIndex: 'closing_balance',
+            key: 'closing_balance',
+            align: 'right' as const,
+            render: (v: number | string) => formatIDR(v),
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: (v: string) =>
+                v === 'completed' ? (
+                    <Tag color="green">Selesai</Tag>
+                ) : (
+                    <Tag color="orange">Terbuka</Tag>
+                ),
+        },
+    ];
+
     return (
         <AppLayout>
             <Head title="Rekonsiliasi Bank" />
@@ -179,6 +239,18 @@ export default function ReconciliationsIndex({
                                     value={lines.filter((l: any) => !l.is_matched).length}
                                 />
                             </Col>
+                            {selisih !== null && (
+                                <Col xs={24} sm={8}>
+                                    <Statistic
+                                        title="Selisih"
+                                        value={selisih}
+                                        formatter={(v) => formatIDR(Number(v))}
+                                        valueStyle={{
+                                            color: Number(selisih) === 0 ? '#52c41a' : '#faad14',
+                                        }}
+                                    />
+                                </Col>
+                            )}
                         </Row>
 
                         <Table
@@ -194,6 +266,61 @@ export default function ReconciliationsIndex({
                     <p>Pilih rekening bank untuk mulai rekonsiliasi.</p>
                 )}
             </Card>
+
+            {selectedAccount && (
+                <>
+                    <Card title="Selesaikan Rekonsiliasi" style={{ marginTop: 16 }}>
+                        <Form layout="inline" onFinish={completeSubmit}>
+                            <Form.Item label="Per Tanggal">
+                                <DatePicker
+                                    value={dayjs(completeForm.data.as_of_date)}
+                                    onChange={(d) =>
+                                        completeForm.setData(
+                                            'as_of_date',
+                                            d ? d.format('YYYY-MM-DD') : '',
+                                        )
+                                    }
+                                    format="DD/MM/YYYY"
+                                />
+                            </Form.Item>
+                            <Form.Item label="Saldo Penutup">
+                                <InputNumber
+                                    min={0}
+                                    formatter={currencyFormatter}
+                                    parser={currencyParser}
+                                    value={completeForm.data.closing_balance}
+                                    onChange={(v) =>
+                                        completeForm.setData(
+                                            'closing_balance',
+                                            Number(v) || 0,
+                                        )
+                                    }
+                                    style={{ width: 200 }}
+                                />
+                            </Form.Item>
+                            <Form.Item>
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    loading={completeForm.processing}
+                                >
+                                    Selesaikan
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                    </Card>
+
+                    <Card title="Riwayat Rekonsiliasi" style={{ marginTop: 16 }}>
+                        <Table
+                            rowKey="id"
+                            columns={historyColumns}
+                            dataSource={reconciliations}
+                            pagination={false}
+                            size="small"
+                        />
+                    </Card>
+                </>
+            )}
 
             <Modal
                 title="Import Statement Bank"

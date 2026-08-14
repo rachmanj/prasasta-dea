@@ -4,10 +4,13 @@ namespace Tests\Feature;
 
 use App\Models\Account;
 use App\Models\Contact;
+use App\Models\JournalEntry;
+use App\Models\User;
 use App\Services\BillService;
 use App\Services\ReportService;
 use App\Services\TransactionService;
 use Database\Seeders\AccountSeeder;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -105,5 +108,28 @@ class FinanceFlowTest extends TestCase
             Account::where('code', '1100')->first()->id
         ));
         $this->assertEquals(500000, app(ReportService::class)->accountBalance($cash->id));
+    }
+
+    public function test_opening_balance_creates_balanced_journal(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $admin = User::factory()->create(['email_verified_at' => now()]);
+        $admin->assignRole('admin');
+
+        $cash = Account::where('code', '1000')->first();
+        $retained = Account::where('code', '3100')->first();
+
+        $this->actingAs($admin)->post(route('opening-balances.store'), [
+            'balances' => [
+                $cash->id => 5000000,
+            ],
+            'date' => '2026-01-01',
+        ])->assertRedirect();
+
+        $this->assertEquals(5000000, app(ReportService::class)->accountBalance($cash->id));
+
+        $retainedCredit = JournalEntry::where('account_id', $retained->id)->sum('credit');
+        $this->assertEquals(5000000, (float) $retainedCredit);
     }
 }

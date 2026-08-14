@@ -15,11 +15,13 @@ class Account extends Model
         'bank_name',
         'account_number',
         'is_active',
+        'opening_balance',
     ];
 
     protected $casts = [
         'is_bank' => 'boolean',
         'is_active' => 'boolean',
+        'opening_balance' => 'decimal:2',
     ];
 
     public function journalEntries(): HasMany

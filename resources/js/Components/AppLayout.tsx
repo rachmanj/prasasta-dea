@@ -81,6 +81,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             children: [
                 { key: '/accounts', label: 'Chart of Accounts' },
                 { key: '/contacts', label: 'Kontak' },
+                ...(isAdmin ? [{ key: '/opening-balances', label: 'Saldo Awal' }] : []),
                 ...(isAdmin ? [{ key: '/users', label: 'Users' }] : []),
             ],
         },
@@ -96,6 +97,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             return '/bills?type=' + (u.searchParams.get('type') || 'receivable');
         }
         if (path.startsWith('/accounts')) return '/accounts';
+        if (path.startsWith('/opening-balances')) return '/opening-balances';
         if (path.startsWith('/contacts')) return '/contacts';
         if (path.startsWith('/users')) return '/users';
         if (path.startsWith('/reconciliations')) return '/reconciliations';

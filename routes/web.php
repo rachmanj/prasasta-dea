@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OpeningBalanceController;
 use App\Http\Controllers\ReconciliationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TransactionController;
@@ -21,6 +22,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('accounts', AccountController::class)->except(['create', 'edit', 'show']);
     Route::resource('contacts', ContactController::class)->except(['create', 'edit', 'show']);
     Route::resource('users', UserController::class)->except(['create', 'edit', 'show'])->middleware('role:admin');
+
+    Route::get('opening-balances', [OpeningBalanceController::class, 'index'])
+        ->name('opening-balances.index')
+        ->middleware('role:admin');
+    Route::post('opening-balances', [OpeningBalanceController::class, 'store'])
+        ->name('opening-balances.store')
+        ->middleware('role:admin');
 
     // Transaksi
     Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
@@ -41,6 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Rekonsiliasi bank
     Route::get('reconciliations', [ReconciliationController::class, 'index'])->name('reconciliations.index');
+    Route::post('reconciliations', [ReconciliationController::class, 'store'])->name('reconciliations.store');
     Route::post('reconciliations/import', [ReconciliationController::class, 'import'])->name('reconciliations.import');
     Route::post('reconciliations/{line}/match', [ReconciliationController::class, 'match'])->name('reconciliations.match');
     Route::post('reconciliations/{line}/unmatch', [ReconciliationController::class, 'unmatch'])->name('reconciliations.unmatch');

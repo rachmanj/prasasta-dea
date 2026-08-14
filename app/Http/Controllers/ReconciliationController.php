@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\BankStatementLine;
+use App\Models\Reconciliation;
 use App\Models\Transaction;
 use App\Services\BankStatementImporter;
 use App\Services\ReportService;
@@ -22,6 +23,7 @@ class ReconciliationController extends Controller
 
         $lines = collect();
         $candidates = collect();
+        $reconciliations = collect();
 
         if ($accountId) {
             $lines = BankStatementLine::where('account_id', $accountId)
@@ -36,6 +38,10 @@ class ReconciliationController extends Controller
                 ->orderByDesc('date')
                 ->limit(200)
                 ->get();
+
+            $reconciliations = Reconciliation::where('account_id', $accountId)
+                ->orderByDesc('as_of_date')
+                ->get();
         }
 
         return Inertia::render('Reconciliations/Index', [
@@ -43,8 +49,29 @@ class ReconciliationController extends Controller
             'selectedAccount' => $accountId ? Account::find($accountId) : null,
             'lines' => $lines,
             'candidates' => $candidates,
+            'reconciliations' => $reconciliations,
             'balances' => $reports->cashBalances(),
         ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'account_id' => 'required|exists:accounts,id',
+            'as_of_date' => 'required|date',
+            'closing_balance' => 'required|numeric',
+        ]);
+
+        Reconciliation::create([
+            'account_id' => $data['account_id'],
+            'as_of_date' => $data['as_of_date'],
+            'closing_balance' => $data['closing_balance'],
+            'status' => 'completed',
+            'started_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('reconciliations.index', ['account_id' => $data['account_id']])
+            ->with('success', 'Rekonsiliasi berhasil diselesaikan.');
     }
 
     public function import(Request $request, BankStatementImporter $importer): RedirectResponse
