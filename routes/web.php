@@ -56,9 +56,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Tagihan (hutang / piutang)
     Route::get('bills', [BillController::class, 'index'])->name('bills.index');
+    Route::get('bills/create', [BillController::class, 'create'])->name('bills.create')->middleware('role:admin|bendahara');
     Route::get('bills/{bill}', [BillController::class, 'show'])->name('bills.show');
     Route::middleware('role:admin|bendahara')->group(function () {
-        Route::get('bills/create', [BillController::class, 'create'])->name('bills.create');
         Route::post('bills', [BillController::class, 'store'])->name('bills.store');
         Route::post('bills/{bill}/payments', [BillController::class, 'recordPayment'])->name('bills.payments.store');
         Route::delete('bills/{bill}', [BillController::class, 'destroy'])->name('bills.destroy');

@@ -97,4 +97,19 @@ class RolePermissionTest extends TestCase
             ->get(route('reports.profit-loss'))
             ->assertOk();
     }
+
+    public function test_bills_create_page_is_reachable_not_shadowed_by_show_route(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('bills.create', ['type' => 'payable']))
+            ->assertOk();
+
+        $this->actingAs($this->bendahara)
+            ->get(route('bills.create', ['type' => 'receivable']))
+            ->assertOk();
+
+        $this->actingAs($this->pengurus)
+            ->get(route('bills.create', ['type' => 'payable']))
+            ->assertForbidden();
+    }
 }
