@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\Bill;
 use App\Models\JournalEntry;
 use App\Models\Transaction;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ReportService
@@ -111,6 +112,48 @@ class ReportService
             'total_revenue' => $totalRevenue,
             'total_expense' => $totalExpense,
             'profit' => round($totalRevenue - $totalExpense, 2),
+        ];
+    }
+
+    public function generalLedger(int $accountId, string $start, string $end): array
+    {
+        $openingBalance = round($this->accountBalance(
+            $accountId,
+            Carbon::parse($start)->subDay()->toDateString()
+        ), 2);
+
+        $entries = JournalEntry::query()
+            ->where('account_id', $accountId)
+            ->whereHas('transaction', fn ($q) => $q->whereBetween('date', [$start, $end]))
+            ->with('transaction')
+            ->join('transactions', 'journal_entries.transaction_id', '=', 'transactions.id')
+            ->orderBy('transactions.date')
+            ->orderBy('transactions.id')
+            ->select('journal_entries.*')
+            ->get();
+
+        $balance = $openingBalance;
+        $rows = [];
+
+        foreach ($entries as $entry) {
+            $debit = (float) $entry->debit;
+            $credit = (float) $entry->credit;
+            $balance = round($balance + $debit - $credit, 2);
+
+            $rows[] = [
+                'date' => $entry->transaction->date->format('Y-m-d'),
+                'journal_no' => $entry->transaction->journal_no,
+                'description' => $entry->transaction->description ?? $entry->description ?? '',
+                'debit' => round($debit, 2),
+                'credit' => round($credit, 2),
+                'balance' => $balance,
+            ];
+        }
+
+        return [
+            'opening_balance' => $openingBalance,
+            'entries' => $rows,
+            'ending_balance' => $balance,
         ];
     }
 

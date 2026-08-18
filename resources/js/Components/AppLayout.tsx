@@ -73,6 +73,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             children: [
                 { key: '/reports/cash-flow', label: 'Arus Kas' },
                 { key: '/reports/profit-loss', label: 'Laba Rugi' },
+                { key: '/reports/general-ledger', label: 'Buku Besar' },
                 {
                     key: '/reports/receivables-payables',
                     label: 'Hutang & Piutang',
@@ -112,6 +113,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         if (path.startsWith('/reconciliations')) return '/reconciliations';
         if (path.startsWith('/reports/cash-flow')) return '/reports/cash-flow';
         if (path.startsWith('/reports/profit-loss')) return '/reports/profit-loss';
+        if (path.startsWith('/reports/general-ledger')) return '/reports/general-ledger';
         if (path.startsWith('/reports/receivables-payables'))
             return '/reports/receivables-payables';
         return '/dashboard';

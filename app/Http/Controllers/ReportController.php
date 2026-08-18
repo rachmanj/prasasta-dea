@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Exports\CashFlowExport;
+use App\Exports\GeneralLedgerExport;
 use App\Exports\ProfitLossExport;
 use App\Exports\ReceivablesPayablesExport;
+use App\Models\Account;
 use App\Services\ReportService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -43,6 +45,24 @@ class ReportController extends Controller
         ]);
     }
 
+    public function generalLedger(Request $request, ReportService $reports): Response
+    {
+        [$start, $end] = $this->period($request);
+        $accountId = $this->resolveAccountId($request);
+
+        $accounts = Account::where('is_active', true)
+            ->orderBy('code')
+            ->get(['id', 'code', 'name']);
+
+        return Inertia::render('Reports/GeneralLedger', [
+            'accounts' => $accounts,
+            'accountId' => $accountId,
+            'start' => $start,
+            'end' => $end,
+            'data' => $reports->generalLedger($accountId, $start, $end),
+        ]);
+    }
+
     public function exportCashFlow(Request $request, ReportService $reports): BinaryFileResponse
     {
         [$start, $end] = $this->period($request);
@@ -69,6 +89,31 @@ class ReportController extends Controller
             new ReceivablesPayablesExport($reports->receivablesPayables()),
             'hutang-piutang.xlsx'
         );
+    }
+
+    public function exportGeneralLedger(Request $request, ReportService $reports): BinaryFileResponse
+    {
+        [$start, $end] = $this->period($request);
+        $accountId = $this->resolveAccountId($request);
+
+        return Excel::download(
+            new GeneralLedgerExport($reports->generalLedger($accountId, $start, $end), $start, $end),
+            "buku-besar-{$start}-{$end}.xlsx"
+        );
+    }
+
+    private function resolveAccountId(Request $request): int
+    {
+        $accountId = $request->input('account_id');
+
+        if (! $accountId) {
+            $accountId = Account::where('is_active', true)->orderBy('code')->first()?->id;
+        }
+
+        $request->merge(['account_id' => $accountId]);
+        $request->validate(['account_id' => 'required|exists:accounts,id']);
+
+        return (int) $accountId;
     }
 
     private function period(Request $request): array

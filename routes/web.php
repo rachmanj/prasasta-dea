@@ -77,7 +77,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('reports/cash-flow', [ReportController::class, 'cashFlow'])->name('reports.cash-flow');
     Route::get('reports/profit-loss', [ReportController::class, 'profitLoss'])->name('reports.profit-loss');
     Route::get('reports/receivables-payables', [ReportController::class, 'receivablesPayables'])->name('reports.receivables-payables');
+    Route::get('reports/general-ledger', [ReportController::class, 'generalLedger'])->name('reports.general-ledger');
     Route::get('reports/export/cash-flow', [ReportController::class, 'exportCashFlow'])->name('reports.export.cash-flow');
+    Route::get('reports/export/general-ledger', [ReportController::class, 'exportGeneralLedger'])->name('reports.export.general-ledger');
     Route::get('reports/export/profit-loss', [ReportController::class, 'exportProfitLoss'])->name('reports.export.profit-loss');
     Route::get('reports/export/receivables-payables', [ReportController::class, 'exportReceivablesPayables'])->name('reports.export.receivables-payables');
 });

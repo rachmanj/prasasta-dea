@@ -1,7 +1,8 @@
 import AppLayout from '@/Components/AppLayout';
 import { formatIDR } from '@/lib/format';
-import { Head } from '@inertiajs/react';
-import { Card, Col, Row, Statistic, Table, Typography } from 'antd';
+import { Head, router } from '@inertiajs/react';
+import { Card, Col, DatePicker, Row, Statistic, Table } from 'antd';
+import dayjs from 'dayjs';
 
 interface CashBalance {
     id: number;
@@ -11,6 +12,8 @@ interface CashBalance {
 }
 
 interface Props {
+    start: string;
+    end: string;
     cashBalances: CashBalance[];
     cashFlow: {
         total_inflow: number;
@@ -25,8 +28,19 @@ interface Props {
     };
 }
 
-export default function Dashboard({ cashBalances, cashFlow, receivablesPayables }: Props) {
+export default function Dashboard({ start, end, cashBalances, cashFlow, receivablesPayables }: Props) {
     const totalCash = cashBalances.reduce((s, a) => s + Number(a.balance), 0);
+
+    const onRange = (dates: any) => {
+        router.get(
+            route('dashboard'),
+            {
+                start: dates?.[0] ? dates[0].format('YYYY-MM-DD') : undefined,
+                end: dates?.[1] ? dates[1].format('YYYY-MM-DD') : undefined,
+            },
+            { preserveState: true },
+        );
+    };
 
     const columns = [
         { title: 'Kode', dataIndex: 'code', key: 'code', width: 100 },
@@ -44,6 +58,10 @@ export default function Dashboard({ cashBalances, cashFlow, receivablesPayables 
         <AppLayout>
             <Head title="Dashboard" />
 
+            <Card style={{ marginBottom: 16 }}>
+                <DatePicker.RangePicker value={[dayjs(start), dayjs(end)]} onChange={onRange} />
+            </Card>
+
             <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12} lg={8}>
                     <Card>
@@ -57,7 +75,7 @@ export default function Dashboard({ cashBalances, cashFlow, receivablesPayables 
                 <Col xs={24} sm={12} lg={8}>
                     <Card>
                         <Statistic
-                            title="Uang Masuk (bulan ini)"
+                            title="Uang Masuk (periode)"
                             value={cashFlow.total_inflow}
                             formatter={(v) => formatIDR(Number(v))}
                         />
@@ -66,7 +84,7 @@ export default function Dashboard({ cashBalances, cashFlow, receivablesPayables 
                 <Col xs={24} sm={12} lg={8}>
                     <Card>
                         <Statistic
-                            title="Uang Keluar (bulan ini)"
+                            title="Uang Keluar (periode)"
                             value={cashFlow.total_outflow}
                             formatter={(v) => formatIDR(Number(v))}
                         />
