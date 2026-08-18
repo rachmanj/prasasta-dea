@@ -207,7 +207,7 @@ export default function TransactionForm({
                                     optionFilterProp="label"
                                     value={data.category_id}
                                     onChange={(v) => setData('category_id', v)}
-                                    options={accountOptions(type === 'receipt' ? revenueAccounts : expenseAccounts)}
+                                    options={accountOptions(allAccounts)}
                                     placeholder="Pilih kategori"
                                 />
                             </Form.Item>
