@@ -69,6 +69,7 @@ Double-entry posting rules:
 4. **Inertia + Excel download:** file exports return `BinaryFileResponse`, so trigger them with `window.open(url)`, NOT `router.get` (Inertia would try to parse the file as a page).
 5. **CSV bank import:** `BankStatementImporter` auto-detects delimiter + columns (BCA/BRI/Mandiri); keep it tolerant of `1.000.000,00` vs `1,000,000.00` number formats.
 6. **Dead Breeze files:** the Tailwind Breeze scaffolding (old `Components/*`, `Layouts/*`, `Pages/Profile/*`, `Welcome.tsx`) was removed — the app uses AntD `Components/AppLayout.tsx` + `GuestLayout.tsx` + `FlashMessages.tsx` only. Don't re-add Tailwind.
+7. **Route ordering (shadowing):** in `routes/web.php`, literal sub-routes MUST be registered BEFORE param routes sharing the same prefix — e.g. `bills/create` before `bills/{bill}` (GET show). If `bills/{bill}` comes first, `/bills/create` matches the show route with `{bill}="create"` and returns 404. When splitting routes to apply role middleware, preserve the original literal-before-param ordering.
 
 ## Source of Truth
 Read order when unsure: user's message → `docs/spec-mvp.md` → existing code (models/services/controllers) → `database/seeders/AccountSeeder.php` for CoA. UI conventions come from existing pages in `resources/js/Pages/`.
