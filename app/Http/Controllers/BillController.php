@@ -64,7 +64,12 @@ class BillController extends Controller
 
     public function show(Bill $bill): Response
     {
-        $bill->load(['contact', 'payments.transaction', 'account']);
+        $bill->load([
+            'contact',
+            'account',
+            'transaction.journalEntries.account',
+            'payments.transaction.journalEntries.account',
+        ]);
 
         return Inertia::render('Bills/Show', [
             'bill' => $bill,

@@ -77,6 +77,26 @@ export default function BillShow({ bill, cashAccounts }: { bill: any; cashAccoun
         },
     ];
 
+    const journalColumns = [
+        {
+            title: 'Akun',
+            key: 'account',
+            render: (_: unknown, r: any) => (r.account ? `${r.account.code} - ${r.account.name}` : '-'),
+        },
+        {
+            title: 'Debit',
+            key: 'debit',
+            align: 'right' as const,
+            render: (_: unknown, r: any) => (Number(r.debit) > 0 ? formatIDR(r.debit) : '-'),
+        },
+        {
+            title: 'Kredit',
+            key: 'credit',
+            align: 'right' as const,
+            render: (_: unknown, r: any) => (Number(r.credit) > 0 ? formatIDR(r.credit) : '-'),
+        },
+    ];
+
     return (
         <AppLayout>
             <Head title={bill.bill_no} />
@@ -127,8 +147,35 @@ export default function BillShow({ bill, cashAccounts }: { bill: any; cashAccoun
                 </Col>
             </Row>
 
+            <Card title="Jurnal Tagihan" style={{ marginTop: 16 }}>
+                <Table
+                    size="small"
+                    rowKey="id"
+                    columns={journalColumns}
+                    dataSource={bill.transaction?.journal_entries || []}
+                    pagination={false}
+                />
+            </Card>
+
             <Card title="Riwayat Pembayaran" style={{ marginTop: 16 }}>
-                <Table rowKey="id" columns={paymentColumns} dataSource={bill.payments} pagination={false} size="small" />
+                <Table
+                    rowKey="id"
+                    columns={paymentColumns}
+                    dataSource={bill.payments}
+                    pagination={false}
+                    size="small"
+                    expandable={{
+                        expandedRowRender: (p: any) => (
+                            <Table
+                                size="small"
+                                rowKey={(e: any) => e.id}
+                                columns={journalColumns}
+                                dataSource={p.transaction?.journal_entries || []}
+                                pagination={false}
+                            />
+                        ),
+                    }}
+                />
             </Card>
 
             <Modal
