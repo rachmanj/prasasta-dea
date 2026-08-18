@@ -83,7 +83,7 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
 
     const columns = [
         { title: 'No. Jurnal', dataIndex: 'journal_no', key: 'journal_no' },
-        { title: 'Tanggal', dataIndex: 'date', key: 'date' },
+        { title: 'Tanggal', dataIndex: 'date', key: 'date', render: (v?: string) => (v ? dayjs(v).format('DD-MMM-YYYY') : '-') },
         { title: 'Keterangan', dataIndex: 'description', key: 'description', render: (v?: string) => v || '-' },
         {
             title: 'Rekening',
