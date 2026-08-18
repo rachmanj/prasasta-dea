@@ -2,7 +2,7 @@ import AppLayout from '@/Components/AppLayout';
 import { formatIDR } from '@/lib/format';
 import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
-import { Button, DatePicker, Popconfirm, Space, Table, Tag } from 'antd';
+import { Button, DatePicker, Popconfirm, Space, Table, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
 
 const TYPE_LABELS: Record<string, string> = {
@@ -163,6 +163,56 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                 rowKey="id"
                 columns={columns}
                 dataSource={transactions.data}
+                expandable={{
+                    expandedRowRender: (tx: any) => {
+                        const entries = tx.journal_entries || [];
+                        const totalDebit = entries.reduce(
+                            (s: number, e: any) => s + Number(e.debit),
+                            0,
+                        );
+                        const totalCredit = entries.reduce(
+                            (s: number, e: any) => s + Number(e.credit),
+                            0,
+                        );
+                        return (
+                            <div style={{ padding: '8px 24px' }}>
+                                <Table
+                                    size="small"
+                                    rowKey={(e: any) => e.id}
+                                    columns={[
+                                        {
+                                            title: 'Akun',
+                                            dataIndex: 'account',
+                                            key: 'account',
+                                            render: (a: any) => (a ? `${a.code} - ${a.name}` : '-'),
+                                        },
+                                        {
+                                            title: 'Debit',
+                                            dataIndex: 'debit',
+                                            key: 'debit',
+                                            align: 'right' as const,
+                                            render: (v: any) => (Number(v) > 0 ? formatIDR(v) : '-'),
+                                        },
+                                        {
+                                            title: 'Kredit',
+                                            dataIndex: 'credit',
+                                            key: 'credit',
+                                            align: 'right' as const,
+                                            render: (v: any) => (Number(v) > 0 ? formatIDR(v) : '-'),
+                                        },
+                                    ]}
+                                    dataSource={entries}
+                                    pagination={false}
+                                />
+                                <div style={{ marginTop: 8, textAlign: 'right' }}>
+                                    <Typography.Text type="secondary">
+                                        Total Debit {formatIDR(totalDebit)} = Total Kredit {formatIDR(totalCredit)}
+                                    </Typography.Text>
+                                </div>
+                            </div>
+                        );
+                    },
+                }}
                 pagination={{
                     current: transactions.current_page,
                     pageSize: transactions.per_page,
