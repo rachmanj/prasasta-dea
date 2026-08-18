@@ -18,9 +18,22 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Master data
-    Route::resource('accounts', AccountController::class)->except(['create', 'edit', 'show']);
-    Route::resource('contacts', ContactController::class)->except(['create', 'edit', 'show']);
+    // Master data — accounts
+    Route::get('accounts', [AccountController::class, 'index'])->name('accounts.index');
+    Route::middleware('role:admin|bendahara')->group(function () {
+        Route::post('accounts', [AccountController::class, 'store'])->name('accounts.store');
+        Route::patch('accounts/{account}', [AccountController::class, 'update'])->name('accounts.update');
+        Route::delete('accounts/{account}', [AccountController::class, 'destroy'])->name('accounts.destroy');
+    });
+
+    // Master data — contacts
+    Route::get('contacts', [ContactController::class, 'index'])->name('contacts.index');
+    Route::middleware('role:admin|bendahara')->group(function () {
+        Route::post('contacts', [ContactController::class, 'store'])->name('contacts.store');
+        Route::patch('contacts/{contact}', [ContactController::class, 'update'])->name('contacts.update');
+        Route::delete('contacts/{contact}', [ContactController::class, 'destroy'])->name('contacts.destroy');
+    });
+
     Route::resource('users', UserController::class)->except(['create', 'edit', 'show'])->middleware('role:admin');
 
     Route::get('opening-balances', [OpeningBalanceController::class, 'index'])
@@ -32,27 +45,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Transaksi
     Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
-    Route::get('transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
-    Route::post('transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::get('transactions/export', [TransactionController::class, 'export'])->name('transactions.export');
-    Route::get('transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
-    Route::patch('transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
-    Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+    Route::middleware('role:admin|bendahara')->group(function () {
+        Route::get('transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
+        Route::post('transactions', [TransactionController::class, 'store'])->name('transactions.store');
+        Route::get('transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
+        Route::patch('transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
+        Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+    });
 
     // Tagihan (hutang / piutang)
     Route::get('bills', [BillController::class, 'index'])->name('bills.index');
-    Route::get('bills/create', [BillController::class, 'create'])->name('bills.create');
-    Route::post('bills', [BillController::class, 'store'])->name('bills.store');
     Route::get('bills/{bill}', [BillController::class, 'show'])->name('bills.show');
-    Route::post('bills/{bill}/payments', [BillController::class, 'recordPayment'])->name('bills.payments.store');
-    Route::delete('bills/{bill}', [BillController::class, 'destroy'])->name('bills.destroy');
+    Route::middleware('role:admin|bendahara')->group(function () {
+        Route::get('bills/create', [BillController::class, 'create'])->name('bills.create');
+        Route::post('bills', [BillController::class, 'store'])->name('bills.store');
+        Route::post('bills/{bill}/payments', [BillController::class, 'recordPayment'])->name('bills.payments.store');
+        Route::delete('bills/{bill}', [BillController::class, 'destroy'])->name('bills.destroy');
+    });
 
     // Rekonsiliasi bank
     Route::get('reconciliations', [ReconciliationController::class, 'index'])->name('reconciliations.index');
-    Route::post('reconciliations', [ReconciliationController::class, 'store'])->name('reconciliations.store');
-    Route::post('reconciliations/import', [ReconciliationController::class, 'import'])->name('reconciliations.import');
-    Route::post('reconciliations/{line}/match', [ReconciliationController::class, 'match'])->name('reconciliations.match');
-    Route::post('reconciliations/{line}/unmatch', [ReconciliationController::class, 'unmatch'])->name('reconciliations.unmatch');
+    Route::middleware('role:admin|bendahara')->group(function () {
+        Route::post('reconciliations', [ReconciliationController::class, 'store'])->name('reconciliations.store');
+        Route::post('reconciliations/import', [ReconciliationController::class, 'import'])->name('reconciliations.import');
+        Route::post('reconciliations/{line}/match', [ReconciliationController::class, 'match'])->name('reconciliations.match');
+        Route::post('reconciliations/{line}/unmatch', [ReconciliationController::class, 'unmatch'])->name('reconciliations.unmatch');
+    });
 
     // Laporan
     Route::get('reports/cash-flow', [ReportController::class, 'cashFlow'])->name('reports.cash-flow');

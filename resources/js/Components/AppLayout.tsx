@@ -32,35 +32,40 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     const { auth } = usePage().props;
     const user = auth.user;
     const isAdmin = user?.roles?.includes('admin') ?? false;
+    const canManage = isAdmin || (user?.roles?.includes('bendahara') ?? false);
     const path = usePage().url;
 
     const menuItems: MenuProps['items'] = [
         { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-        {
-            key: 'trans',
-            icon: <SwapOutlined />,
-            label: 'Transaksi',
-            children: [
-                { key: '/transactions?type=receipt', label: 'Uang Masuk' },
-                { key: '/transactions?type=payment', label: 'Uang Keluar' },
-                { key: '/transactions?type=transfer', label: 'Transfer' },
-                { key: '/transactions?type=journal', label: 'Jurnal Umum' },
-            ],
-        },
-        {
-            key: 'bills',
-            icon: <FileTextOutlined />,
-            label: 'Hutang & Piutang',
-            children: [
-                { key: '/bills?type=receivable', label: 'Piutang' },
-                { key: '/bills?type=payable', label: 'Hutang' },
-            ],
-        },
-        {
-            key: '/reconciliations',
-            icon: <BankOutlined />,
-            label: 'Rekonsiliasi Bank',
-        },
+        ...(canManage
+            ? [
+                  {
+                      key: 'trans',
+                      icon: <SwapOutlined />,
+                      label: 'Transaksi',
+                      children: [
+                          { key: '/transactions?type=receipt', label: 'Uang Masuk' },
+                          { key: '/transactions?type=payment', label: 'Uang Keluar' },
+                          { key: '/transactions?type=transfer', label: 'Transfer' },
+                          { key: '/transactions?type=journal', label: 'Jurnal Umum' },
+                      ],
+                  },
+                  {
+                      key: 'bills',
+                      icon: <FileTextOutlined />,
+                      label: 'Hutang & Piutang',
+                      children: [
+                          { key: '/bills?type=receivable', label: 'Piutang' },
+                          { key: '/bills?type=payable', label: 'Hutang' },
+                      ],
+                  },
+                  {
+                      key: '/reconciliations',
+                      icon: <BankOutlined />,
+                      label: 'Rekonsiliasi Bank',
+                  },
+              ]
+            : []),
         {
             key: 'reports',
             icon: <BarChartOutlined />,
@@ -74,17 +79,21 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 },
             ],
         },
-        {
-            key: 'master',
-            icon: <SettingOutlined />,
-            label: 'Master',
-            children: [
-                { key: '/accounts', label: 'Chart of Accounts' },
-                { key: '/contacts', label: 'Kontak' },
-                ...(isAdmin ? [{ key: '/opening-balances', label: 'Saldo Awal' }] : []),
-                ...(isAdmin ? [{ key: '/users', label: 'Users' }] : []),
-            ],
-        },
+        ...(canManage
+            ? [
+                  {
+                      key: 'master',
+                      icon: <SettingOutlined />,
+                      label: 'Master',
+                      children: [
+                          { key: '/accounts', label: 'Chart of Accounts' },
+                          { key: '/contacts', label: 'Kontak' },
+                          ...(isAdmin ? [{ key: '/opening-balances', label: 'Saldo Awal' }] : []),
+                          ...(isAdmin ? [{ key: '/users', label: 'Users' }] : []),
+                      ],
+                  },
+              ]
+            : []),
     ];
 
     const selectedKey = useMemo(() => {
