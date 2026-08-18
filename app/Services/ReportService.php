@@ -157,6 +157,8 @@ class ReportService
 
     private function cashAccountIds()
     {
-        return Account::where('is_bank', true)->pluck('id');
+        return Account::where('is_bank', true)
+            ->orWhere('code', '1000')
+            ->pluck('id');
     }
 }

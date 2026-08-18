@@ -132,4 +132,25 @@ class FinanceFlowTest extends TestCase
         $retainedCredit = JournalEntry::where('account_id', $retained->id)->sum('credit');
         $this->assertEquals(5000000, (float) $retainedCredit);
     }
+
+    public function test_cash_flow_includes_cash_on_hand_account(): void
+    {
+        $cash = Account::where('code', '1000')->first();
+        $loan = Account::create(['code' => '2200', 'name' => 'Hutang Pinjaman', 'type' => 'liability', 'is_bank' => false]);
+
+        app(TransactionService::class)->create([
+            'type' => 'receipt',
+            'date' => '2026-08-05',
+            'description' => 'Dana pinjaman (Soft Loan) dari ARKA',
+            'account_id' => $cash->id,
+            'category_id' => $loan->id,
+            'amount' => 20000000,
+        ]);
+
+        $flow = app(ReportService::class)->cashFlow('2026-08-01', '2026-08-31');
+
+        $this->assertEquals(20000000, $flow['total_inflow']);
+        $this->assertEquals(0, $flow['total_outflow']);
+        $this->assertArrayHasKey('2200 - Hutang Pinjaman', $flow['inflow_by_category']);
+    }
 }
