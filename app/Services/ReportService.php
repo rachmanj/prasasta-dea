@@ -50,7 +50,7 @@ class ReportService
 
     public function cashFlow(string $start, string $end): array
     {
-        $cashIds = $this->cashAccountIds();
+        $cashIds = $this->cashAccountIds()->all();
 
         $entries = JournalEntry::query()
             ->whereIn('account_id', $cashIds)
@@ -72,18 +72,29 @@ class ReportService
             $isInflow = (float) $entry->debit > 0;
             $amount = (float) ($isInflow ? $entry->debit : $entry->credit);
 
+            // Offset account(s) = the non-cash line(s) in the same transaction.
+            $keys = [];
             foreach ($tx->journalEntries as $line) {
                 if ($line->id === $entry->id) {
                     continue;
                 }
+                if (in_array($line->account_id, $cashIds)) {
+                    continue; // skip other cash lines (multi-cash / transfer-like journals)
+                }
+                $keys[] = $line->account->code . ' - ' . $line->account->name;
+            }
+            if (empty($keys)) {
+                $keys[] = 'Lainnya';
+            }
 
-                $key = $line->account->code . ' - ' . $line->account->name;
-
-                if ($isInflow) {
-                    $totalInflow += $amount;
+            if ($isInflow) {
+                $totalInflow += $amount;
+                foreach ($keys as $key) {
                     $inflowByCategory[$key] = ($inflowByCategory[$key] ?? 0) + $amount;
-                } else {
-                    $totalOutflow += $amount;
+                }
+            } else {
+                $totalOutflow += $amount;
+                foreach ($keys as $key) {
                     $outflowByCategory[$key] = ($outflowByCategory[$key] ?? 0) + $amount;
                 }
             }
@@ -102,6 +113,12 @@ class ReportService
     {
         $revenue = $this->accountNet(Account::where('type', 'revenue')->pluck('id'), $start, $end);
         $expense = $this->accountNet(Account::where('type', 'expense')->pluck('id'), $start, $end);
+
+        // accountNet returns credit - debit, so expense nets are negative; flip to positive for display.
+        $expense = array_map(
+            fn ($e) => ['code' => $e['code'], 'name' => $e['name'], 'net' => round(-(float) $e['net'], 2)],
+            $expense,
+        );
 
         $totalRevenue = round(array_sum(array_column($revenue, 'net')), 2);
         $totalExpense = round(array_sum(array_column($expense, 'net')), 2);

@@ -153,4 +153,30 @@ class FinanceFlowTest extends TestCase
         $this->assertEquals(0, $flow['total_outflow']);
         $this->assertArrayHasKey('2200 - Hutang Pinjaman', $flow['inflow_by_category']);
     }
+
+    public function test_profit_loss_signs_and_cash_flow_no_double_count(): void
+    {
+        $cash = Account::where('code', '1000')->first();
+        $revenue = Account::where('code', '4100')->first();
+        $expense = Account::where('code', '5100')->first();
+
+        app(TransactionService::class)->create([
+            'type' => 'receipt', 'date' => '2026-01-10', 'description' => 'Pendapatan',
+            'account_id' => $cash->id, 'category_id' => $revenue->id, 'amount' => 1000000,
+        ]);
+        app(TransactionService::class)->create([
+            'type' => 'payment', 'date' => '2026-01-11', 'description' => 'Honor',
+            'account_id' => $cash->id, 'category_id' => $expense->id, 'amount' => 300000,
+        ]);
+
+        $pl = app(ReportService::class)->profitLoss('2026-01-01', '2026-01-31');
+        $this->assertEquals(1000000, $pl['total_revenue']);
+        $this->assertEquals(300000, $pl['total_expense']); // positive, not negative
+        $this->assertEquals(700000, $pl['profit']); // revenue - expense
+
+        $cf = app(ReportService::class)->cashFlow('2026-01-01', '2026-01-31');
+        $this->assertEquals(1000000, $cf['total_inflow']);
+        $this->assertEquals(300000, $cf['total_outflow']);
+        $this->assertEquals(700000, $cf['net']);
+    }
 }
