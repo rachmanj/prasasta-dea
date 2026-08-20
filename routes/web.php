@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AssetController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\CashAdvanceController;
 use App\Http\Controllers\ContactController;
@@ -63,6 +64,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('bills', [BillController::class, 'store'])->name('bills.store');
         Route::post('bills/{bill}/payments', [BillController::class, 'recordPayment'])->name('bills.payments.store');
         Route::delete('bills/{bill}', [BillController::class, 'destroy'])->name('bills.destroy');
+    });
+
+    // Aset tetap
+    Route::get('assets', [AssetController::class, 'index'])->name('assets.index');
+    Route::get('assets/create', [AssetController::class, 'create'])->name('assets.create')->middleware('role:admin|bendahara');
+    Route::get('assets/depreciation', [AssetController::class, 'depreciation'])->name('assets.depreciation');
+    Route::get('assets/{asset}', [AssetController::class, 'show'])->name('assets.show');
+    Route::middleware('role:admin|bendahara')->group(function () {
+        Route::post('assets', [AssetController::class, 'store'])->name('assets.store');
+        Route::post('assets/depreciation', [AssetController::class, 'postDepreciation'])->name('assets.depreciation.post');
+        Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->name('assets.destroy');
     });
 
     // Kas bon

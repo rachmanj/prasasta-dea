@@ -15,6 +15,8 @@ class AccountSeeder extends Seeder
             ['code' => '1011', 'name' => 'Giro Mandiri', 'type' => 'asset', 'is_bank' => true, 'bank_name' => 'Mandiri'],
             ['code' => '1100', 'name' => 'Piutang Usaha', 'type' => 'asset', 'is_bank' => false],
             ['code' => '1150', 'name' => 'Kas Bon / Uang Muka Karyawan', 'type' => 'asset', 'is_bank' => false],
+            ['code' => '1200', 'name' => 'Aset Tetap', 'type' => 'asset', 'is_bank' => false],
+            ['code' => '1201', 'name' => 'Akumulasi Penyusutan', 'type' => 'asset', 'is_bank' => false],
             // Kewajiban
             ['code' => '2100', 'name' => 'Hutang Usaha', 'type' => 'liability', 'is_bank' => false],
             ['code' => '2200', 'name' => 'Hutang Pinjaman', 'type' => 'liability', 'is_bank' => false],
@@ -37,6 +39,7 @@ class AccountSeeder extends Seeder
             ['code' => '5700', 'name' => 'Beban Operasional Lainnya', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5800', 'name' => 'Beban Pelatihan', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5900', 'name' => 'Beban Peralatan Kantor', 'type' => 'expense', 'is_bank' => false],
+            ['code' => '5950', 'name' => 'Beban Penyusutan', 'type' => 'expense', 'is_bank' => false],
         ];
 
         foreach ($accounts as $account) {

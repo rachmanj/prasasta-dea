@@ -90,6 +90,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       children: [
                           { key: '/accounts', label: 'Chart of Accounts' },
                           { key: '/contacts', label: 'Kontak' },
+                          { key: '/assets', label: 'Aset' },
+                          { key: '/assets/depreciation', label: 'Penyusutan' },
                           ...(isAdmin ? [{ key: '/opening-balances', label: 'Saldo Awal' }] : []),
                           ...(isAdmin ? [{ key: '/users', label: 'Users' }] : []),
                       ],
@@ -108,6 +110,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             return '/bills?type=' + (u.searchParams.get('type') || 'receivable');
         }
         if (path.startsWith('/cash-advances')) return '/cash-advances';
+        if (path.startsWith('/assets/depreciation')) return '/assets/depreciation';
+        if (path.startsWith('/assets')) return '/assets';
         if (path.startsWith('/accounts')) return '/accounts';
         if (path.startsWith('/opening-balances')) return '/opening-balances';
         if (path.startsWith('/contacts')) return '/contacts';
