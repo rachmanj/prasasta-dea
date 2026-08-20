@@ -48,6 +48,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                           { key: '/transactions?type=payment', label: 'Uang Keluar' },
                           { key: '/transactions?type=transfer', label: 'Transfer' },
                           { key: '/transactions?type=journal', label: 'Jurnal Umum' },
+                          { key: '/cash-advances', label: 'Kas Bon' },
                       ],
                   },
                   {
@@ -106,6 +107,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             const u = new URL(path, window.location.origin);
             return '/bills?type=' + (u.searchParams.get('type') || 'receivable');
         }
+        if (path.startsWith('/cash-advances')) return '/cash-advances';
         if (path.startsWith('/accounts')) return '/accounts';
         if (path.startsWith('/opening-balances')) return '/opening-balances';
         if (path.startsWith('/contacts')) return '/contacts';

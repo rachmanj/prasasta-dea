@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\BillController;
+use App\Http\Controllers\CashAdvanceController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OpeningBalanceController;
@@ -62,6 +63,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('bills', [BillController::class, 'store'])->name('bills.store');
         Route::post('bills/{bill}/payments', [BillController::class, 'recordPayment'])->name('bills.payments.store');
         Route::delete('bills/{bill}', [BillController::class, 'destroy'])->name('bills.destroy');
+    });
+
+    // Kas bon
+    Route::get('cash-advances', [CashAdvanceController::class, 'index'])->name('cash-advances.index');
+    Route::get('cash-advances/create', [CashAdvanceController::class, 'create'])->name('cash-advances.create')->middleware('role:admin|bendahara');
+    Route::get('cash-advances/{advance}/realize', [CashAdvanceController::class, 'realizeForm'])->name('cash-advances.realize.create')->middleware('role:admin|bendahara');
+    Route::get('cash-advances/{advance}', [CashAdvanceController::class, 'show'])->name('cash-advances.show');
+    Route::middleware('role:admin|bendahara')->group(function () {
+        Route::post('cash-advances', [CashAdvanceController::class, 'store'])->name('cash-advances.store');
+        Route::post('cash-advances/{advance}/realize', [CashAdvanceController::class, 'realize'])->name('cash-advances.realize');
+        Route::delete('cash-advances/{advance}', [CashAdvanceController::class, 'destroy'])->name('cash-advances.destroy');
     });
 
     // Rekonsiliasi bank

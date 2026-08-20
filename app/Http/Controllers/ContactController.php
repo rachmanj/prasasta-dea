@@ -26,7 +26,7 @@ class ContactController extends Controller
     {
         Contact::create($request->validate([
             'name' => 'required|string|max:191',
-            'type' => 'required|in:student,vendor,instructor,donor,other',
+            'type' => 'required|in:student,vendor,instructor,donor,employee,other',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
         ]));
@@ -38,7 +38,7 @@ class ContactController extends Controller
     {
         $contact->update($request->validate([
             'name' => 'required|string|max:191',
-            'type' => 'required|in:student,vendor,instructor,donor,other',
+            'type' => 'required|in:student,vendor,instructor,donor,employee,other',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
         ]));
@@ -48,8 +48,8 @@ class ContactController extends Controller
 
     public function destroy(Contact $contact): RedirectResponse
     {
-        if ($contact->bills()->exists()) {
-            return back()->with('error', 'Kontak tidak bisa dihapus karena punya tagihan.');
+        if ($contact->bills()->exists() || $contact->cashAdvances()->exists()) {
+            return back()->with('error', 'Kontak tidak bisa dihapus karena punya tagihan atau kas bon.');
         }
 
         $contact->delete();

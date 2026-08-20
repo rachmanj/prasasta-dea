@@ -136,7 +136,7 @@ class FinanceFlowTest extends TestCase
     public function test_cash_flow_includes_cash_on_hand_account(): void
     {
         $cash = Account::where('code', '1000')->first();
-        $loan = Account::create(['code' => '2200', 'name' => 'Hutang Pinjaman', 'type' => 'liability', 'is_bank' => false]);
+        $loan = Account::where('code', '2200')->firstOrFail();
 
         app(TransactionService::class)->create([
             'type' => 'receipt',

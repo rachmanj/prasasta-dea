@@ -18,4 +18,9 @@ class Contact extends Model
     {
         return $this->hasMany(Bill::class);
     }
+
+    public function cashAdvances(): HasMany
+    {
+        return $this->hasMany(CashAdvance::class);
+    }
 }

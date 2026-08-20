@@ -14,6 +14,7 @@ class AccountSeeder extends Seeder
             ['code' => '1000', 'name' => 'Kas', 'type' => 'asset', 'is_bank' => false],
             ['code' => '1011', 'name' => 'Giro Mandiri', 'type' => 'asset', 'is_bank' => true, 'bank_name' => 'Mandiri'],
             ['code' => '1100', 'name' => 'Piutang Usaha', 'type' => 'asset', 'is_bank' => false],
+            ['code' => '1150', 'name' => 'Kas Bon / Uang Muka Karyawan', 'type' => 'asset', 'is_bank' => false],
             // Kewajiban
             ['code' => '2100', 'name' => 'Hutang Usaha', 'type' => 'liability', 'is_bank' => false],
             ['code' => '2200', 'name' => 'Hutang Pinjaman', 'type' => 'liability', 'is_bank' => false],

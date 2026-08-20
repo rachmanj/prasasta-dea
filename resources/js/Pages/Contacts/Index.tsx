@@ -19,6 +19,7 @@ const TYPE_LABELS: Record<string, string> = {
     vendor: 'Vendor',
     instructor: 'Pengajar',
     donor: 'Donatur',
+    employee: 'Karyawan',
     other: 'Lainnya',
 };
 
