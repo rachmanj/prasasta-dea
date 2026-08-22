@@ -2,7 +2,7 @@ import AppLayout from '@/Components/AppLayout';
 import { formatIDR } from '@/lib/format';
 import { DownloadOutlined } from '@ant-design/icons';
 import { Head } from '@inertiajs/react';
-import { Button, Card, Col, Row, Statistic, Table, Tag } from 'antd';
+import { Button, Card, Col, Row, Statistic, Table, Tag, theme } from 'antd';
 
 const STATUS_LABELS: Record<string, string> = {
     open: 'Belum Lunas',
@@ -25,6 +25,7 @@ interface Props {
 }
 
 export default function ReceivablesPayables({ data }: Props) {
+    const { token } = theme.useToken();
     const columns = (keyPrefix: string) => [
         { title: 'No. Tagihan', dataIndex: 'bill_no', key: `${keyPrefix}-no` },
         {
@@ -66,10 +67,10 @@ export default function ReceivablesPayables({ data }: Props) {
             >
                 <Row gutter={16} style={{ marginBottom: 16 }}>
                     <Col xs={24} sm={12}>
-                        <Statistic title="Total Piutang" value={data.total_receivable} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: '#faad14' }} />
+                        <Statistic title="Total Piutang" value={data.total_receivable} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: token.colorWarning }} />
                     </Col>
                     <Col xs={24} sm={12}>
-                        <Statistic title="Total Hutang" value={data.total_payable} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: '#faad14' }} />
+                        <Statistic title="Total Hutang" value={data.total_payable} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: token.colorWarning }} />
                     </Col>
                 </Row>
 

@@ -14,6 +14,7 @@ import {
     Statistic,
     Table,
     Tag,
+    theme,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
@@ -103,6 +104,7 @@ export default function ReconciliationsShow({
     matchGroups,
     balances,
 }: Props) {
+    const { token } = theme.useToken();
     const [selectedBankIds, setSelectedBankIds] = useState<number[]>([]);
     const [selectedBookIds, setSelectedBookIds] = useState<number[]>([]);
     const editable = reconciliation.status !== 'completed';
@@ -304,7 +306,7 @@ export default function ReconciliationsShow({
 
             <div style={{ marginBottom: 16 }}>
                 <h2 style={{ margin: 0 }}>
-                    Rekonsiliasi {reconciliation.account?.code} —{' '}
+                    Rekonsiliasi {reconciliation.account?.code}:{' '}
                     {dayjs(reconciliation.period).format('MMMM YYYY')}
                 </h2>
             </div>
@@ -333,7 +335,7 @@ export default function ReconciliationsShow({
                             value={balances.difference}
                             formatter={(v) => formatIDR(Number(v))}
                             valueStyle={{
-                                color: Math.abs(Number(balances.difference)) < 0.01 ? '#52c41a' : '#faad14',
+                                color: Math.abs(Number(balances.difference)) < 0.01 ? token.colorSuccess : token.colorWarning,
                             }}
                         />
                     </Col>
@@ -343,7 +345,7 @@ export default function ReconciliationsShow({
                             value={balances.unexplained}
                             formatter={(v) => formatIDR(Number(v))}
                             valueStyle={{
-                                color: Math.abs(Number(balances.unexplained)) < 0.01 ? '#52c41a' : '#ff4d4f',
+                                color: Math.abs(Number(balances.unexplained)) < 0.01 ? token.colorSuccess : token.colorError,
                             }}
                         />
                     </Col>
@@ -527,7 +529,7 @@ export default function ReconciliationsShow({
                             <Button danger>Hapus Sesi</Button>
                         </Popconfirm>
                         {!balances.is_balanced && (
-                            <span style={{ color: '#faad14' }}>
+                            <span style={{ color: token.colorWarning }}>
                                 Belum balance: {balances.unmatched_bank_count} bank +{' '}
                                 {balances.unmatched_book_count} buku belum cocok
                             </span>

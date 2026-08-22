@@ -111,7 +111,7 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
             render: (_: unknown, r: any) => (
                 <Space>
                     <Button size="small" onClick={() => router.get(route('transactions.edit', r.id))}>
-                        Edit
+                        Ubah
                     </Button>
                     <Popconfirm
                         title="Hapus transaksi ini?"

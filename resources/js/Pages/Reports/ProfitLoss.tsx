@@ -2,7 +2,7 @@ import AppLayout from '@/Components/AppLayout';
 import { formatIDR } from '@/lib/format';
 import { DownloadOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
-import { Button, Card, Col, DatePicker, Row, Space, Statistic, Table } from 'antd';
+import { Button, Card, Col, DatePicker, Row, Space, Statistic, Table, theme } from 'antd';
 import dayjs from 'dayjs';
 
 interface Props {
@@ -18,6 +18,7 @@ interface Props {
 }
 
 export default function ProfitLoss({ start, end, data }: Props) {
+    const { token } = theme.useToken();
     const onRange = (dates: any) => {
         router.get(
             route('reports.profit-loss'),
@@ -67,10 +68,10 @@ export default function ProfitLoss({ start, end, data }: Props) {
             >
                 <Row gutter={16} style={{ marginBottom: 16 }}>
                     <Col xs={24} sm={8}>
-                        <Statistic title="Total Pendapatan" value={data.total_revenue} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: '#52c41a' }} />
+                        <Statistic title="Total Pendapatan" value={data.total_revenue} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: token.colorSuccess }} />
                     </Col>
                     <Col xs={24} sm={8}>
-                        <Statistic title="Total Beban" value={data.total_expense} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: '#ff4d4f' }} />
+                        <Statistic title="Total Beban" value={data.total_expense} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: token.colorError }} />
                     </Col>
                     <Col xs={24} sm={8}>
                         <Statistic title="Laba (Rugi) Bersih" value={data.profit} formatter={(v) => formatIDR(Number(v))} />

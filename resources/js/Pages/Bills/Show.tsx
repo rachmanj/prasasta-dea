@@ -17,6 +17,7 @@ import {
     Statistic,
     Table,
     Tag,
+    theme,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useState } from 'react';
@@ -39,6 +40,7 @@ interface Account {
 }
 
 export default function BillShow({ bill, cashAccounts }: { bill: any; cashAccounts: Account[] }) {
+    const { token } = theme.useToken();
     const [open, setOpen] = useState(false);
     const isReceivable = bill.type === 'receivable';
     const remaining = Number(bill.amount) - Number(bill.paid_amount);
@@ -140,7 +142,7 @@ export default function BillShow({ bill, cashAccounts }: { bill: any; cashAccoun
                                 <Statistic title="Sudah Dibayar" value={Number(bill.paid_amount)} formatter={(v) => formatIDR(Number(v))} />
                             </Col>
                             <Col xs={24} sm={8}>
-                                <Statistic title="Sisa" value={remaining} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: remaining > 0 ? '#faad14' : '#52c41a' }} />
+                                <Statistic title="Sisa" value={remaining} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: remaining > 0 ? token.colorWarning : token.colorSuccess }} />
                             </Col>
                         </Row>
                     </Card>

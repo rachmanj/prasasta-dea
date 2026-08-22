@@ -11,6 +11,7 @@ import {
     SunOutlined,
     SwapOutlined,
     UserOutlined,
+    WalletOutlined,
 } from '@ant-design/icons';
 import { router, usePage } from '@inertiajs/react';
 import {
@@ -67,14 +68,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   },
                   {
                       key: '/cash-opnames',
-                      icon: <BankOutlined />,
+                      icon: <WalletOutlined />,
                       label: 'Kas Opname',
                   },
               ]
             : [
                   {
                       key: '/cash-opnames',
-                      icon: <BankOutlined />,
+                      icon: <WalletOutlined />,
                       label: 'Kas Opname',
                   },
               ]),
@@ -104,7 +105,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                           { key: '/assets', label: 'Aset' },
                           { key: '/assets/depreciation', label: 'Penyusutan' },
                           ...(isAdmin ? [{ key: '/opening-balances', label: 'Saldo Awal' }] : []),
-                          ...(isAdmin ? [{ key: '/users', label: 'Users' }] : []),
+                          ...(isAdmin ? [{ key: '/users', label: 'Pengguna' }] : []),
                       ],
                   },
               ]
@@ -143,7 +144,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sider breakpoint="lg" collapsedWidth="0">
+            <Sider
+                breakpoint="lg"
+                collapsedWidth="0"
+                theme={mode === 'dark' ? 'dark' : 'light'}
+            >
                 <div
                     style={{
                         height: 48,
@@ -151,7 +156,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#fff',
+                        color: mode === 'dark' ? '#fff' : '#0F766E',
                         fontWeight: 700,
                         fontSize: 16,
                     }}
@@ -159,7 +164,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                     Prasasta ERP
                 </div>
                 <Menu
-                    theme="dark"
+                    theme={mode === 'dark' ? 'dark' : 'light'}
                     mode="inline"
                     selectedKeys={[selectedKey]}
                     defaultOpenKeys={['trans', 'bills', 'reports', 'master']}

@@ -25,8 +25,14 @@ function Root({ children }: { children: React.ReactNode }) {
                         ? antdTheme.darkAlgorithm
                         : antdTheme.defaultAlgorithm,
                 token: {
-                    colorPrimary: '#1677ff',
-                    borderRadius: 6,
+                    colorPrimary: '#0F766E',
+                    colorInfo: '#0F766E',
+                    borderRadius: 8,
+                    borderRadiusLG: 12,
+                    borderRadiusSM: 6,
+                    fontFamily:
+                        "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+                    ...(mode === 'light' ? { colorBgLayout: '#F6F8FA' } : {}),
                 },
             }}
         >
@@ -52,6 +58,6 @@ createInertiaApp({
         );
     },
     progress: {
-        color: '#1677ff',
+        color: '#0F766E',
     },
 });

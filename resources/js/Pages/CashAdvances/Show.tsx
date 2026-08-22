@@ -12,6 +12,7 @@ import {
     Statistic,
     Table,
     Tag,
+    theme,
 } from 'antd';
 import dayjs from 'dayjs';
 
@@ -28,6 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function CashAdvanceShow({ advance }: { advance: any }) {
+    const { token } = theme.useToken();
     const remaining =
         Number(advance.amount) - Number(advance.realized_amount) - Number(advance.returned_amount);
     const cleared = Number(advance.realized_amount) + Number(advance.returned_amount);
@@ -137,7 +139,7 @@ export default function CashAdvanceShow({ advance }: { advance: any }) {
                                     title="Sisa"
                                     value={remaining}
                                     formatter={(v) => formatIDR(Number(v))}
-                                    valueStyle={{ color: remaining > 0 ? '#faad14' : '#52c41a' }}
+                                    valueStyle={{ color: remaining > 0 ? token.colorWarning : token.colorSuccess }}
                                 />
                             </Col>
                         </Row>

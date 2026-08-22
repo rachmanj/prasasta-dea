@@ -99,7 +99,7 @@ export default function CashOpnameShow({ opname, terbilang, canAdjust }: Props) 
                 )}
             </Space>
 
-            <Card title={`Kas Opname — ${opname.number}`}>
+            <Card title={`Kas Opname · ${opname.number}`}>
                 <Descriptions column={{ xs: 1, sm: 2 }} style={{ marginBottom: 24 }}>
                     <Descriptions.Item label="Tanggal">
                         {dayjs(opname.date).format('DD-MMM-YYYY')}

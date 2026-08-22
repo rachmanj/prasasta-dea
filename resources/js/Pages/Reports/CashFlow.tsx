@@ -2,7 +2,7 @@ import AppLayout from '@/Components/AppLayout';
 import { formatIDR } from '@/lib/format';
 import { DownloadOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
-import { Button, Card, Col, DatePicker, Row, Space, Statistic, Table } from 'antd';
+import { Button, Card, Col, DatePicker, Row, Space, Statistic, Table, theme } from 'antd';
 import dayjs from 'dayjs';
 
 interface Props {
@@ -18,6 +18,7 @@ interface Props {
 }
 
 export default function CashFlow({ start, end, data }: Props) {
+    const { token } = theme.useToken();
     const inflowRows = Object.entries(data.inflow_by_category).map(([k, v]) => ({
         kategori: k,
         nominal: v,
@@ -76,10 +77,10 @@ export default function CashFlow({ start, end, data }: Props) {
             >
                 <Row gutter={16} style={{ marginBottom: 16 }}>
                     <Col xs={24} sm={8}>
-                        <Statistic title="Total Uang Masuk" value={data.total_inflow} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: '#52c41a' }} />
+                        <Statistic title="Total Uang Masuk" value={data.total_inflow} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: token.colorSuccess }} />
                     </Col>
                     <Col xs={24} sm={8}>
-                        <Statistic title="Total Uang Keluar" value={data.total_outflow} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: '#ff4d4f' }} />
+                        <Statistic title="Total Uang Keluar" value={data.total_outflow} formatter={(v) => formatIDR(Number(v))} valueStyle={{ color: token.colorError }} />
                     </Col>
                     <Col xs={24} sm={8}>
                         <Statistic title="Arus Kas Bersih" value={data.net} formatter={(v) => formatIDR(Number(v))} />

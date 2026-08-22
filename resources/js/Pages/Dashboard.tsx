@@ -1,7 +1,7 @@
 import AppLayout from '@/Components/AppLayout';
 import { formatIDR } from '@/lib/format';
 import { Head, router } from '@inertiajs/react';
-import { Card, Col, DatePicker, Row, Statistic, Table } from 'antd';
+import { Card, Col, DatePicker, Row, Statistic, Table, theme } from 'antd';
 import dayjs from 'dayjs';
 
 interface CashBalance {
@@ -29,6 +29,7 @@ interface Props {
 }
 
 export default function Dashboard({ start, end, cashBalances, cashFlow, receivablesPayables }: Props) {
+    const { token } = theme.useToken();
     const totalCash = cashBalances.reduce((s, a) => s + Number(a.balance), 0);
 
     const onRange = (dates: any) => {
@@ -64,11 +65,12 @@ export default function Dashboard({ start, end, cashBalances, cashFlow, receivab
 
             <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12} lg={8}>
-                    <Card>
+                    <Card variant="outlined">
                         <Statistic
                             title="Total Saldo Kas & Bank"
                             value={totalCash}
                             formatter={(v) => formatIDR(Number(v))}
+                            valueStyle={{ color: token.colorPrimary }}
                         />
                     </Card>
                 </Col>
@@ -78,6 +80,7 @@ export default function Dashboard({ start, end, cashBalances, cashFlow, receivab
                             title="Uang Masuk (periode)"
                             value={cashFlow.total_inflow}
                             formatter={(v) => formatIDR(Number(v))}
+                            valueStyle={{ color: token.colorSuccess }}
                         />
                     </Card>
                 </Col>
@@ -87,6 +90,7 @@ export default function Dashboard({ start, end, cashBalances, cashFlow, receivab
                             title="Uang Keluar (periode)"
                             value={cashFlow.total_outflow}
                             formatter={(v) => formatIDR(Number(v))}
+                            valueStyle={{ color: token.colorError }}
                         />
                     </Card>
                 </Col>
@@ -96,6 +100,7 @@ export default function Dashboard({ start, end, cashBalances, cashFlow, receivab
                             title="Total Piutang"
                             value={receivablesPayables.total_receivable}
                             formatter={(v) => formatIDR(Number(v))}
+                            valueStyle={{ color: token.colorWarning }}
                         />
                     </Card>
                 </Col>
@@ -105,6 +110,7 @@ export default function Dashboard({ start, end, cashBalances, cashFlow, receivab
                             title="Total Hutang"
                             value={receivablesPayables.total_payable}
                             formatter={(v) => formatIDR(Number(v))}
+                            valueStyle={{ color: token.colorWarning }}
                         />
                     </Card>
                 </Col>

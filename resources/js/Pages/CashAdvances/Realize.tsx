@@ -16,6 +16,7 @@ import {
     Space,
     Statistic,
     Typography,
+    theme,
 } from 'antd';
 import dayjs from 'dayjs';
 
@@ -43,6 +44,7 @@ const accountOptions = (list: Account[]) =>
     list.map((a) => ({ value: a.id, label: `${a.code} - ${a.name}` }));
 
 export default function CashAdvanceRealize({ advance, expenseAccounts }: Props) {
+    const { token } = theme.useToken();
     const remaining =
         Number(advance.amount) - Number(advance.realized_amount) - Number(advance.returned_amount);
 
@@ -92,7 +94,7 @@ export default function CashAdvanceRealize({ advance, expenseAccounts }: Props) 
                             title="Sisa Kas Bon"
                             value={remaining}
                             formatter={(v) => formatIDR(Number(v))}
-                            valueStyle={{ color: '#faad14' }}
+                            valueStyle={{ color: token.colorWarning }}
                         />
                     </Col>
                     <Col xs={24} sm={8}>
@@ -100,7 +102,7 @@ export default function CashAdvanceRealize({ advance, expenseAccounts }: Props) 
                             title="Total Realisasi"
                             value={total}
                             formatter={(v) => formatIDR(Number(v))}
-                            valueStyle={{ color: overspend ? '#ff4d4f' : undefined }}
+                            valueStyle={{ color: overspend ? token.colorError : undefined }}
                         />
                     </Col>
                 </Row>
