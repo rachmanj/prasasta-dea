@@ -21,6 +21,7 @@ import {
     Layout,
     Menu,
     Space,
+    theme,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import { useMemo } from 'react';
@@ -30,6 +31,7 @@ const { Header, Sider, Content } = Layout;
 
 export default function AppLayout({ children }: { children: ReactNode }) {
     const { mode, toggle } = useTheme();
+    const { token } = theme.useToken();
     const { auth } = usePage().props;
     const user = auth.user;
     const isAdmin = user?.roles?.includes('admin') ?? false;
@@ -148,6 +150,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 breakpoint="lg"
                 collapsedWidth="0"
                 theme={mode === 'dark' ? 'dark' : 'light'}
+                style={{
+                    background: token.colorBgContainer,
+                    borderRight: `1px solid ${token.colorSplit}`,
+                }}
             >
                 <div
                     style={{
@@ -180,6 +186,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
+                        background: token.colorBgContainer,
+                        borderBottom: `1px solid ${token.colorSplit}`,
                     }}
                 >
                     <Space size="middle">
