@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\CashFlowExport;
 use App\Exports\GeneralLedgerExport;
 use App\Exports\ProfitLossExport;
+use App\Exports\ProgramProfitLossExport;
 use App\Exports\ReceivablesPayablesExport;
 use App\Models\Account;
 use App\Services\ReportService;
@@ -42,6 +43,13 @@ class ReportController extends Controller
     {
         return Inertia::render('Reports/ReceivablesPayables', [
             'data' => $reports->receivablesPayables(),
+        ]);
+    }
+
+    public function programProfitLoss(ReportService $reports): Response
+    {
+        return Inertia::render('Reports/ProgramProfitLoss', [
+            'data' => $reports->programProfitLoss(),
         ]);
     }
 
@@ -88,6 +96,14 @@ class ReportController extends Controller
         return Excel::download(
             new ReceivablesPayablesExport($reports->receivablesPayables()),
             'hutang-piutang.xlsx'
+        );
+    }
+
+    public function exportProgramProfitLoss(ReportService $reports): BinaryFileResponse
+    {
+        return Excel::download(
+            new ProgramProfitLossExport($reports->programProfitLoss()),
+            'laba-rugi-program.xlsx'
         );
     }
 

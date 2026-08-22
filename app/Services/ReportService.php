@@ -202,6 +202,18 @@ class ReportService
             ->all();
     }
 
+    public function programProfitLoss(): array
+    {
+        $programs = $this->programSummaries();
+
+        return [
+            'programs' => $programs,
+            'total_revenue' => round(array_sum(array_column($programs, 'revenue')), 2),
+            'total_expense' => round(array_sum(array_column($programs, 'expense')), 2),
+            'total_profit' => round(array_sum(array_column($programs, 'profit')), 2),
+        ];
+    }
+
     public function receivablesPayables(): array
     {
         $receivables = Bill::query()

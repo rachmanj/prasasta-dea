@@ -90,6 +90,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             children: [
                 { key: '/reports/cash-flow', label: 'Arus Kas' },
                 { key: '/reports/profit-loss', label: 'Laba Rugi' },
+                { key: '/reports/program-profit-loss', label: 'Laba Rugi Program' },
                 { key: '/reports/general-ledger', label: 'Buku Besar' },
                 {
                     key: '/reports/receivables-payables',
@@ -137,6 +138,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         if (path.startsWith('/cash-opnames')) return '/cash-opnames';
         if (path.startsWith('/reports/cash-flow')) return '/reports/cash-flow';
         if (path.startsWith('/reports/profit-loss')) return '/reports/profit-loss';
+        if (path.startsWith('/reports/program-profit-loss')) return '/reports/program-profit-loss';
         if (path.startsWith('/reports/general-ledger')) return '/reports/general-ledger';
         if (path.startsWith('/reports/receivables-payables'))
             return '/reports/receivables-payables';
