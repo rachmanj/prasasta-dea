@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\CashAdvance;
 use App\Models\Contact;
+use App\Models\Program;
 use App\Services\CashAdvanceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,7 @@ class CashAdvanceController extends Controller
     {
         return Inertia::render('CashAdvances/Form', [
             'employees' => Contact::where('type', 'employee')->orderBy('name')->get(),
+            'programs' => Program::orderBy('name')->get(),
         ]);
     }
 
@@ -41,6 +43,7 @@ class CashAdvanceController extends Controller
     {
         $data = $request->validate([
             'contact_id' => 'required|exists:contacts,id',
+            'program_id' => 'nullable|exists:programs,id',
             'description' => 'nullable|string|max:255',
             'amount' => 'required|numeric|min:0.01',
             'date' => 'required|date',
@@ -61,7 +64,9 @@ class CashAdvanceController extends Controller
     {
         $advance->load([
             'contact',
+            'program',
             'transaction.journalEntries.account',
+            'realizations.program',
             'realizations.transaction.journalEntries.account',
         ]);
 
@@ -80,6 +85,7 @@ class CashAdvanceController extends Controller
         return Inertia::render('CashAdvances/Realize', [
             'advance' => $advance->load('contact'),
             'expenseAccounts' => Account::where('type', 'expense')->orderBy('code')->get(),
+            'programs' => Program::orderBy('name')->get(),
         ]);
     }
 
@@ -91,6 +97,7 @@ class CashAdvanceController extends Controller
 
         $data = $request->validate([
             'date' => 'required|date',
+            'program_id' => 'nullable|exists:programs,id',
             'description' => 'nullable|string|max:255',
             'lines' => 'array',
             'lines.*.account_id' => 'required_with:lines|exists:accounts,id',

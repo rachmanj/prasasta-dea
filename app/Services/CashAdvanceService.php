@@ -76,13 +76,16 @@ class CashAdvanceService
             throw new DomainException('Kas kembali melebihi sisa kas bon.');
         }
 
-        return DB::transaction(function () use ($advance, $data, $expenseLines, $returnedAmount, $expenseTotal, $total, $remaining) {
+        $programId = $data['program_id'] ?? $advance->program_id;
+
+        return DB::transaction(function () use ($advance, $data, $expenseLines, $returnedAmount, $expenseTotal, $total, $remaining, $programId) {
             $lines = $this->buildRealizationLines($expenseLines, $returnedAmount, $total, $remaining);
 
             $journal = $this->transactions->create([
                 'type' => 'journal',
                 'date' => $data['date'],
                 'description' => 'Realisasi kas bon ' . $advance->advance_no,
+                'program_id' => $programId,
                 'lines' => $lines,
             ]);
 
@@ -90,6 +93,7 @@ class CashAdvanceService
                 'date' => $data['date'],
                 'transaction_id' => $journal->id,
                 'description' => $data['description'] ?? null,
+                'program_id' => $programId,
             ]);
 
             $advance->update([

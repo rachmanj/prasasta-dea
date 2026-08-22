@@ -8,16 +8,23 @@ interface Employee {
     name: string;
 }
 
+interface Program {
+    id: number;
+    name: string;
+}
+
 interface Props {
     employees: Employee[];
+    programs: Program[];
 }
 
 const currencyFormatter = (v?: number | string) => `Rp ${Number(v ?? 0).toLocaleString('id-ID')}`;
 const currencyParser = (v?: string) => Number((v ?? '').replace(/[^\d]/g, '')) || 0;
 
-export default function CashAdvanceForm({ employees }: Props) {
+export default function CashAdvanceForm({ employees, programs }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         contact_id: undefined as number | undefined,
+        program_id: undefined as number | undefined,
         description: '',
         amount: 0,
         date: dayjs().format('YYYY-MM-DD'),
@@ -44,6 +51,22 @@ export default function CashAdvanceForm({ employees }: Props) {
                             onChange={(v) => setData('contact_id', v)}
                             options={employees.map((e) => ({ value: e.id, label: e.name }))}
                             placeholder="Pilih karyawan"
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Program"
+                        validateStatus={errors.program_id ? 'error' : undefined}
+                        help={errors.program_id}
+                    >
+                        <Select
+                            allowClear
+                            showSearch
+                            optionFilterProp="label"
+                            value={data.program_id}
+                            onChange={(v) => setData('program_id', v)}
+                            options={programs.map((p) => ({ value: p.id, label: p.name }))}
+                            placeholder="Pilih program (opsional)"
                         />
                     </Form.Item>
 

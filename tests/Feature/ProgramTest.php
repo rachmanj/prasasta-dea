@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Account;
+use App\Models\Contact;
 use App\Models\User;
+use App\Services\CashAdvanceService;
 use App\Services\ProgramService;
 use App\Services\TransactionService;
 use Database\Seeders\AccountSeeder;
@@ -254,5 +256,46 @@ class ProgramTest extends TestCase
                 'fee' => 100_000,
             ])
             ->assertForbidden();
+    }
+
+    public function test_cash_advance_realization_expense_included_in_program_profit_loss(): void
+    {
+        $program = app(ProgramService::class)->create([
+            'name' => 'Batch Kas Bon',
+            'type' => 'group',
+            'status' => 'active',
+        ]);
+
+        $employee = Contact::create(['name' => 'Budi Karyawan', 'type' => 'employee']);
+        $expense = Account::where('code', '5500')->first();
+
+        $advance = app(CashAdvanceService::class)->create([
+            'contact_id' => $employee->id,
+            'program_id' => $program->id,
+            'amount' => 500_000,
+            'date' => '2026-08-20',
+        ]);
+
+        app(CashAdvanceService::class)->realize($advance, [
+            'date' => '2026-08-21',
+            'lines' => [
+                ['account_id' => $expense->id, 'amount' => 300_000, 'description' => 'Nota ATK'],
+            ],
+            'returned_amount' => 0,
+        ]);
+
+        $advance->refresh();
+        $realization = $advance->realizations()->first();
+
+        $this->assertNull($advance->transaction->program_id);
+        $this->assertSame($program->id, $realization->program_id);
+        $this->assertSame($program->id, $realization->transaction->program_id);
+
+        $entries = $realization->transaction->journalEntries;
+        $this->assertEquals(300_000, (float) $entries->sum('debit'));
+        $this->assertEquals(300_000, (float) $entries->sum('credit'));
+
+        $pl = app(ProgramService::class)->profitLoss($program);
+        $this->assertEquals(300_000, $pl['expense']);
     }
 }

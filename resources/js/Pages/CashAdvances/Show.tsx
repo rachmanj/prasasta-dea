@@ -64,6 +64,11 @@ export default function CashAdvanceShow({ advance }: { advance: any }) {
         },
         { title: 'Keterangan', dataIndex: 'description', key: 'description', render: (v?: string) => v || '-' },
         {
+            title: 'Program',
+            key: 'program',
+            render: (_: unknown, r: any) => r.program?.name ?? '-',
+        },
+        {
             title: 'No. Jurnal',
             key: 'journal',
             render: (_: unknown, r: any) => r.transaction?.journal_no ?? '-',
@@ -110,6 +115,9 @@ export default function CashAdvanceShow({ advance }: { advance: any }) {
                                 {advance.date ? dayjs(advance.date).format('DD-MMM-YYYY') : '-'}
                             </Descriptions.Item>
                             <Descriptions.Item label="Keperluan">{advance.description || '-'}</Descriptions.Item>
+                            {advance.program?.name && (
+                                <Descriptions.Item label="Program">{advance.program.name}</Descriptions.Item>
+                            )}
                         </Descriptions>
 
                         <Row gutter={16} style={{ marginTop: 16 }}>

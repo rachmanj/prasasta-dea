@@ -26,6 +26,11 @@ interface Account {
     name: string;
 }
 
+interface Program {
+    id: number;
+    name: string;
+}
+
 interface ExpenseLine {
     account_id: number | undefined;
     amount: number;
@@ -35,6 +40,7 @@ interface ExpenseLine {
 interface Props {
     advance: any;
     expenseAccounts: Account[];
+    programs: Program[];
 }
 
 const currencyFormatter = (v?: number | string) => `Rp ${Number(v ?? 0).toLocaleString('id-ID')}`;
@@ -43,13 +49,14 @@ const currencyParser = (v?: string) => Number((v ?? '').replace(/[^\d]/g, '')) |
 const accountOptions = (list: Account[]) =>
     list.map((a) => ({ value: a.id, label: `${a.code} - ${a.name}` }));
 
-export default function CashAdvanceRealize({ advance, expenseAccounts }: Props) {
+export default function CashAdvanceRealize({ advance, expenseAccounts, programs }: Props) {
     const { token } = theme.useToken();
     const remaining =
         Number(advance.amount) - Number(advance.realized_amount) - Number(advance.returned_amount);
 
     const { data, setData, post, processing, errors } = useForm({
         date: dayjs().format('YYYY-MM-DD'),
+        program_id: advance.program_id ?? undefined,
         description: '',
         lines: [{ account_id: undefined, amount: 0, description: '' }] as ExpenseLine[],
         returned_amount: 0,
@@ -128,6 +135,22 @@ export default function CashAdvanceRealize({ advance, expenseAccounts }: Props) 
                             style={{ width: '100%' }}
                             value={data.date ? dayjs(data.date) : null}
                             onChange={(_, ds) => setData('date', ds ?? '')}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Program"
+                        validateStatus={errors.program_id ? 'error' : undefined}
+                        help={errors.program_id}
+                    >
+                        <Select
+                            allowClear
+                            showSearch
+                            optionFilterProp="label"
+                            value={data.program_id}
+                            onChange={(v) => setData('program_id', v)}
+                            options={programs.map((p) => ({ value: p.id, label: p.name }))}
+                            placeholder="Pilih program (opsional)"
                         />
                     </Form.Item>
 

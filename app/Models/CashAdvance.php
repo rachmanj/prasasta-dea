@@ -11,6 +11,7 @@ class CashAdvance extends Model
     protected $fillable = [
         'advance_no',
         'contact_id',
+        'program_id',
         'amount',
         'date',
         'description',
@@ -31,6 +32,11 @@ class CashAdvance extends Model
     public function contact(): BelongsTo
     {
         return $this->belongsTo(Contact::class);
+    }
+
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class);
     }
 
     public function transaction(): BelongsTo
