@@ -42,6 +42,7 @@ interface Props {
     revenueAccounts: Account[];
     expenseAccounts: Account[];
     allAccounts: Account[];
+    programs: { id: number; code: string; name: string }[];
 }
 
 const accountOptions = (list: Account[]) =>
@@ -59,6 +60,7 @@ export default function TransactionForm({
     revenueAccounts,
     expenseAccounts,
     allAccounts,
+    programs,
 }: Props) {
     const isEdit = !!transaction;
 
@@ -69,6 +71,7 @@ export default function TransactionForm({
                 date: dayjs().format('YYYY-MM-DD'),
                 description: '',
                 ref_no: '',
+                program_id: null as number | null,
                 amount: 0,
                 lines: [
                     { account_id: undefined, debit: 0, credit: 0 },
@@ -87,6 +90,7 @@ export default function TransactionForm({
             date: transaction.date,
             description: transaction.description ?? '',
             ref_no: transaction.ref_no ?? '',
+            program_id: transaction.program_id ?? null,
             amount,
         };
 
@@ -350,6 +354,27 @@ export default function TransactionForm({
                             placeholder="Nomor referensi eksternal (opsional)"
                         />
                     </Form.Item>
+
+                    {(type === 'receipt' || type === 'payment') && (
+                        <Form.Item
+                            label="Program"
+                            validateStatus={errors.program_id ? 'error' : undefined}
+                            help={errors.program_id}
+                        >
+                            <Select
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                value={data.program_id}
+                                onChange={(v) => setData('program_id', v ?? null)}
+                                options={programs.map((p) => ({
+                                    value: p.id,
+                                    label: `${p.code} - ${p.name}`,
+                                }))}
+                                placeholder="Pilih program (opsional)"
+                            />
+                        </Form.Item>
+                    )}
 
                     <Form.Item>
                         <Space>

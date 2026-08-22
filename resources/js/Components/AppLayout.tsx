@@ -7,6 +7,7 @@ import {
     FileTextOutlined,
     LogoutOutlined,
     MoonOutlined,
+    ProjectOutlined,
     SettingOutlined,
     SunOutlined,
     SwapOutlined,
@@ -40,6 +41,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
     const menuItems: MenuProps['items'] = [
         { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+        { key: '/programs', icon: <ProjectOutlined />, label: 'Program' },
         ...(canManage
             ? [
                   {
@@ -123,6 +125,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             const u = new URL(path, window.location.origin);
             return '/bills?type=' + (u.searchParams.get('type') || 'receivable');
         }
+        if (path.startsWith('/programs')) return '/programs';
         if (path.startsWith('/cash-advances')) return '/cash-advances';
         if (path.startsWith('/assets/depreciation')) return '/assets/depreciation';
         if (path.startsWith('/assets')) return '/assets';

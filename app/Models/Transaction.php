@@ -16,6 +16,7 @@ class Transaction extends Model
         'ref_no',
         'status',
         'user_id',
+        'program_id',
     ];
 
     protected $casts = [
@@ -30,6 +31,11 @@ class Transaction extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class);
     }
 
     public function billPayments(): HasMany

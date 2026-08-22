@@ -8,6 +8,7 @@ use App\Http\Controllers\CashOpnameController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OpeningBalanceController;
+use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ReconciliationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TransactionController;
@@ -21,6 +22,20 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Program pelatihan
+    Route::get('programs', [ProgramController::class, 'index'])->name('programs.index');
+    Route::middleware('role:admin|bendahara')->group(function () {
+        Route::get('programs/create', [ProgramController::class, 'create'])->name('programs.create');
+        Route::post('programs', [ProgramController::class, 'store'])->name('programs.store');
+        Route::get('programs/{program}/edit', [ProgramController::class, 'edit'])->name('programs.edit');
+        Route::put('programs/{program}', [ProgramController::class, 'update'])->name('programs.update');
+        Route::delete('programs/{program}', [ProgramController::class, 'destroy'])->name('programs.destroy');
+        Route::post('programs/{program}/participants', [ProgramController::class, 'storeParticipant'])->name('programs.participants.store');
+        Route::patch('participants/{participant}', [ProgramController::class, 'updateParticipant'])->name('participants.update');
+        Route::delete('participants/{participant}', [ProgramController::class, 'destroyParticipant'])->name('participants.destroy');
+    });
+    Route::get('programs/{program}', [ProgramController::class, 'show'])->name('programs.show');
+
     // Master data — accounts
     Route::get('accounts', [AccountController::class, 'index'])->name('accounts.index');
     Route::middleware('role:admin|bendahara')->group(function () {

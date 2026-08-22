@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Account;
 use App\Models\Bill;
 use App\Models\JournalEntry;
+use App\Models\Program;
 use App\Models\Transaction;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -172,6 +173,33 @@ class ReportService
             'entries' => $rows,
             'ending_balance' => $balance,
         ];
+    }
+
+    public function programSummaries(): array
+    {
+        $service = app(ProgramService::class);
+
+        return Program::query()
+            ->orderByDesc('start_date')
+            ->orderByDesc('id')
+            ->get()
+            ->map(function (Program $program) use ($service) {
+                $pl = $service->profitLoss($program);
+
+                return [
+                    'id' => $program->id,
+                    'code' => $program->code,
+                    'name' => $program->name,
+                    'type' => $program->type,
+                    'start_date' => $program->start_date?->format('Y-m-d'),
+                    'end_date' => $program->end_date?->format('Y-m-d'),
+                    'status' => $program->status,
+                    'revenue' => $pl['revenue'],
+                    'expense' => $pl['expense'],
+                    'profit' => $pl['profit'],
+                ];
+            })
+            ->all();
     }
 
     public function receivablesPayables(): array

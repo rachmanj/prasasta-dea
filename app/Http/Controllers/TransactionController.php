@@ -124,6 +124,7 @@ class TransactionController extends Controller
             'date' => 'required|date',
             'description' => 'nullable|string|max:255',
             'ref_no' => 'nullable|string|max:100',
+            'program_id' => 'nullable|exists:programs,id',
         ];
 
         if ($type === 'journal') {
@@ -164,6 +165,7 @@ class TransactionController extends Controller
             'revenueAccounts' => Account::where('type', 'revenue')->orderBy('code')->get(),
             'expenseAccounts' => Account::where('type', 'expense')->orderBy('code')->get(),
             'allAccounts' => Account::where('is_active', true)->orderBy('code')->get(),
+            'programs' => \App\Models\Program::orderByDesc('start_date')->orderBy('name')->get(['id', 'code', 'name']),
         ];
     }
 }

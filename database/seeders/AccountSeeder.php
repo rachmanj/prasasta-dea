@@ -39,6 +39,8 @@ class AccountSeeder extends Seeder
             ['code' => '5600', 'name' => 'Beban Pemeliharaan', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5700', 'name' => 'Beban Operasional Lainnya', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5800', 'name' => 'Beban Pelatihan', 'type' => 'expense', 'is_bank' => false],
+            ['code' => '5810', 'name' => 'Beban Sertifikasi', 'type' => 'expense', 'is_bank' => false],
+            ['code' => '5820', 'name' => 'Beban Asuransi', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5900', 'name' => 'Beban Peralatan Kantor', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5950', 'name' => 'Beban Penyusutan', 'type' => 'expense', 'is_bank' => false],
         ];
