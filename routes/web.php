@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\CashAdvanceController;
+use App\Http\Controllers\CashOpnameController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OpeningBalanceController;
@@ -101,6 +102,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('reconciliations/{reconciliation}', [ReconciliationController::class, 'destroy'])->name('reconciliations.destroy');
     });
     Route::get('reconciliations/{reconciliation}', [ReconciliationController::class, 'show'])->name('reconciliations.show');
+
+    // Kas opname
+    Route::get('cash-opnames', [CashOpnameController::class, 'index'])->name('cash-opnames.index');
+    Route::get('cash-opnames/create', [CashOpnameController::class, 'create'])->name('cash-opnames.create')->middleware('role:admin|bendahara');
+    Route::get('cash-opnames/{opname}', [CashOpnameController::class, 'show'])->name('cash-opnames.show');
+    Route::get('cash-opnames/{opname}/pdf', [CashOpnameController::class, 'pdf'])->name('cash-opnames.pdf');
+    Route::middleware('role:admin|bendahara')->group(function () {
+        Route::post('cash-opnames', [CashOpnameController::class, 'store'])->name('cash-opnames.store');
+        Route::post('cash-opnames/{opname}/adjust', [CashOpnameController::class, 'adjust'])->name('cash-opnames.adjust');
+    });
 
     // Laporan
     Route::get('reports/cash-flow', [ReportController::class, 'cashFlow'])->name('reports.cash-flow');

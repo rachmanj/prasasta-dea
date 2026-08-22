@@ -65,8 +65,19 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       icon: <BankOutlined />,
                       label: 'Rekonsiliasi Bank',
                   },
+                  {
+                      key: '/cash-opnames',
+                      icon: <BankOutlined />,
+                      label: 'Kas Opname',
+                  },
               ]
-            : []),
+            : [
+                  {
+                      key: '/cash-opnames',
+                      icon: <BankOutlined />,
+                      label: 'Kas Opname',
+                  },
+              ]),
         {
             key: 'reports',
             icon: <BarChartOutlined />,
@@ -117,6 +128,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         if (path.startsWith('/contacts')) return '/contacts';
         if (path.startsWith('/users')) return '/users';
         if (path.startsWith('/reconciliations')) return '/reconciliations';
+        if (path.startsWith('/cash-opnames')) return '/cash-opnames';
         if (path.startsWith('/reports/cash-flow')) return '/reports/cash-flow';
         if (path.startsWith('/reports/profit-loss')) return '/reports/profit-loss';
         if (path.startsWith('/reports/general-ledger')) return '/reports/general-ledger';

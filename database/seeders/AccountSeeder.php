@@ -29,6 +29,7 @@ class AccountSeeder extends Seeder
             ['code' => '4300', 'name' => 'Pendapatan Hibah / Bantuan', 'type' => 'revenue', 'is_bank' => false],
             ['code' => '4400', 'name' => 'Pendapatan Bunga', 'type' => 'revenue', 'is_bank' => false],
             ['code' => '4500', 'name' => 'Pendapatan Sewa', 'type' => 'revenue', 'is_bank' => false],
+            ['code' => '4600', 'name' => 'Pendapatan Lain-lain', 'type' => 'revenue', 'is_bank' => false],
             // Beban
             ['code' => '5100', 'name' => 'Beban Honor Pengajar', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5200', 'name' => 'Beban Gaji Staf', 'type' => 'expense', 'is_bank' => false],
