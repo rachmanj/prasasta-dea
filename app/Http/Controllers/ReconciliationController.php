@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\BankReconciliation;
 use App\Models\BankStatementLine;
-use App\Models\Reconciliation;
-use App\Models\Transaction;
-use App\Services\BankStatementImporter;
-use App\Services\ReportService;
+use App\Models\ReconciliationMatchGroup;
+use App\Services\ReconciliationBalanceService;
+use App\Services\ReconciliationMatchingService;
+use App\Services\ReconciliationService;
 use DomainException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,142 +17,195 @@ use Inertia\Response;
 
 class ReconciliationController extends Controller
 {
-    public function index(Request $request, ReportService $reports): Response
+    public function index(): Response
     {
-        $bankAccounts = Account::where('is_bank', true)->orderBy('code')->get();
-        $accountId = $request->input('account_id');
-
-        $lines = collect();
-        $candidates = collect();
-        $reconciliations = collect();
-
-        if ($accountId) {
-            $lines = BankStatementLine::where('account_id', $accountId)
-                ->with('transaction')
-                ->orderBy('date')
-                ->get();
-
-            $candidates = Transaction::whereIn('type', ['receipt', 'payment'])
-                ->whereDoesntHave('statementLines')
-                ->whereHas('journalEntries', fn ($q) => $q->where('account_id', $accountId))
-                ->with('journalEntries.account')
-                ->orderByDesc('date')
-                ->limit(200)
-                ->get();
-
-            $reconciliations = Reconciliation::where('account_id', $accountId)
-                ->orderByDesc('as_of_date')
-                ->get();
-        }
+        $reconciliations = BankReconciliation::query()
+            ->with('account')
+            ->orderByDesc('period')
+            ->paginate(20);
 
         return Inertia::render('Reconciliations/Index', [
-            'bankAccounts' => $bankAccounts,
-            'selectedAccount' => $accountId ? Account::find($accountId) : null,
-            'lines' => $lines,
-            'candidates' => $candidates,
             'reconciliations' => $reconciliations,
-            'balances' => $reports->cashBalances(),
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function create(): Response
     {
-        $data = $request->validate([
-            'account_id' => 'required|exists:accounts,id',
-            'as_of_date' => 'required|date',
-            'closing_balance' => 'required|numeric',
-        ]);
+        $defaultAccount = Account::where('code', '1011')->first();
 
-        Reconciliation::create([
-            'account_id' => $data['account_id'],
-            'as_of_date' => $data['as_of_date'],
-            'closing_balance' => $data['closing_balance'],
-            'status' => 'completed',
-            'started_by' => auth()->id(),
+        return Inertia::render('Reconciliations/Create', [
+            'bankAccounts' => Account::where('is_bank', true)->orderBy('code')->get(),
+            'defaultAccountId' => $defaultAccount?->id,
         ]);
-
-        return redirect()->route('reconciliations.index', ['account_id' => $data['account_id']])
-            ->with('success', 'Rekonsiliasi berhasil diselesaikan.');
     }
 
-    public function import(Request $request, BankStatementImporter $importer): RedirectResponse
+    public function store(Request $request, ReconciliationService $service): RedirectResponse
     {
         $data = $request->validate([
             'account_id' => 'required|exists:accounts,id',
-            'file' => 'required|file|mimes:csv,txt',
+            'period' => 'required|date',
+            'file' => 'required|file|mimes:pdf|max:10240',
         ]);
 
         try {
-            $parsed = $importer->parse($data['file']);
+            $reconciliation = $service->createFromPdf(
+                (int) $data['account_id'],
+                $data['period'],
+                $request->file('file'),
+            );
         } catch (DomainException $e) {
             return back()->with('error', $e->getMessage());
         }
 
-        $imported = 0;
-        $matched = 0;
+        return redirect()->route('reconciliations.show', $reconciliation)
+            ->with('success', 'Rekening koran berhasil diunggah dan diparse.');
+    }
 
-        foreach ($parsed as $line) {
-            $line['account_id'] = $data['account_id'];
+    public function show(
+        BankReconciliation $reconciliation,
+        ReconciliationBalanceService $balanceService,
+    ): Response {
+        $reconciliation->load(['account', 'startedBy']);
 
-            $exists = BankStatementLine::where('account_id', $data['account_id'])
-                ->where('source_ref', $line['source_ref'])
-                ->exists();
+        $bankLines = $reconciliation->bankLines()
+            ->orderBy('line_order')
+            ->orderBy('transaction_date')
+            ->orderBy('id')
+            ->get();
 
-            if ($exists) {
-                continue;
-            }
+        $bookLines = collect($balanceService->bookLines($reconciliation))->map(function (array $line) {
+            $tx = $line['transaction'];
 
-            $record = BankStatementLine::create($line);
-            $imported++;
+            return [
+                'id' => $tx->id,
+                'date' => $tx->date->toDateString(),
+                'journal_no' => $tx->journal_no,
+                'description' => $tx->description,
+                'debit' => $line['debit'],
+                'credit' => $line['credit'],
+                'net' => $line['net'],
+                'matched_status' => $line['matched_status'],
+            ];
+        });
 
-            if ($this->autoMatch($record)) {
-                $matched++;
-            }
+        $matchGroups = $reconciliation->matchGroups()
+            ->with(['bankLines', 'transactions'])
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (ReconciliationMatchGroup $group) => [
+                'id' => $group->id,
+                'match_type' => $group->match_type,
+                'bank_total' => (float) $group->bank_total,
+                'book_total' => (float) $group->book_total,
+                'difference' => (float) $group->difference,
+                'bank_line_ids' => $group->bankLines->pluck('id')->all(),
+                'transaction_ids' => $group->transactions->pluck('id')->all(),
+            ]);
+
+        return Inertia::render('Reconciliations/Show', [
+            'reconciliation' => $reconciliation,
+            'bankLines' => $bankLines,
+            'bookLines' => $bookLines,
+            'matchGroups' => $matchGroups,
+            'balances' => $balanceService->statusPayload($reconciliation),
+        ]);
+    }
+
+    public function autoMatch(
+        BankReconciliation $reconciliation,
+        ReconciliationMatchingService $matching,
+    ): RedirectResponse {
+        try {
+            $count = $matching->autoMatch($reconciliation);
+        } catch (DomainException $e) {
+            return back()->with('error', $e->getMessage());
         }
 
-        return redirect()->route('reconciliations.index', ['account_id' => $data['account_id']])
-            ->with('success', "{$imported} baris diimpor, {$matched} otomatis cocok.");
+        return back()->with('success', "{$count} grup berhasil dicocokkan otomatis.");
     }
 
-    public function match(Request $request, BankStatementLine $line): RedirectResponse
-    {
-        $data = $request->validate(['transaction_id' => 'required|exists:transactions,id']);
+    public function match(
+        Request $request,
+        BankReconciliation $reconciliation,
+        ReconciliationMatchingService $matching,
+    ): RedirectResponse {
+        $data = $request->validate([
+            'bank_line_ids' => 'required|array|min:1',
+            'bank_line_ids.*' => 'integer|exists:bank_statement_lines,id',
+            'transaction_ids' => 'required|array|min:1',
+            'transaction_ids.*' => 'integer|exists:transactions,id',
+        ]);
 
-        $line->update(['transaction_id' => $data['transaction_id'], 'is_matched' => true]);
-
-        return back()->with('success', 'Statement berhasil dicocokkan.');
-    }
-
-    public function unmatch(BankStatementLine $line): RedirectResponse
-    {
-        $line->update(['transaction_id' => null, 'is_matched' => false]);
-
-        return back();
-    }
-
-    private function autoMatch(BankStatementLine $line): bool
-    {
-        $amount = (float) $line->amount;
-        $target = abs($amount);
-        $type = $amount >= 0 ? 'receipt' : 'payment';
-
-        $candidate = Transaction::where('type', $type)
-            ->where('date', $line->date->toDateString())
-            ->whereDoesntHave('statementLines')
-            ->whereHas('journalEntries', function ($q) use ($line, $target) {
-                $q->where('account_id', $line->account_id)
-                    ->where(function ($qq) use ($target) {
-                        $qq->where('debit', $target)->orWhere('credit', $target);
-                    });
-            })
-            ->first();
-
-        if ($candidate) {
-            $line->update(['transaction_id' => $candidate->id, 'is_matched' => true]);
-
-            return true;
+        try {
+            $matching->manualMatch(
+                $reconciliation,
+                $data['bank_line_ids'],
+                $data['transaction_ids'],
+            );
+        } catch (DomainException $e) {
+            return back()->with('error', $e->getMessage());
         }
 
-        return false;
+        return back()->with('success', 'Baris berhasil dicocokkan.');
+    }
+
+    public function unmatch(
+        BankReconciliation $reconciliation,
+        ReconciliationMatchGroup $group,
+        ReconciliationMatchingService $matching,
+    ): RedirectResponse {
+        try {
+            $matching->unmatchGroup($reconciliation, $group);
+        } catch (DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Cocokkan dibatalkan.');
+    }
+
+    public function exclude(
+        Request $request,
+        BankReconciliation $reconciliation,
+        BankStatementLine $line,
+        ReconciliationService $service,
+    ): RedirectResponse {
+        $data = $request->validate([
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $service->excludeLine($reconciliation, $line, $data['reason'] ?? null);
+        } catch (DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Status baris bank diperbarui.');
+    }
+
+    public function complete(
+        BankReconciliation $reconciliation,
+        ReconciliationService $service,
+    ): RedirectResponse {
+        try {
+            $service->complete($reconciliation);
+        } catch (DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Rekonsiliasi berhasil diselesaikan.');
+    }
+
+    public function destroy(
+        BankReconciliation $reconciliation,
+        ReconciliationService $service,
+    ): RedirectResponse {
+        try {
+            $service->destroy($reconciliation);
+        } catch (DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('reconciliations.index')
+            ->with('success', 'Sesi rekonsiliasi dihapus.');
     }
 }

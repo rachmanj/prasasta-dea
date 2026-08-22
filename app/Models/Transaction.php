@@ -37,8 +37,8 @@ class Transaction extends Model
         return $this->hasMany(BillPayment::class);
     }
 
-    public function statementLines(): HasMany
+    public function matchGroupBookLines(): HasMany
     {
-        return $this->hasMany(BankStatementLine::class);
+        return $this->hasMany(MatchGroupBookLine::class);
     }
 }

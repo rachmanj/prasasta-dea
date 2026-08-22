@@ -91,11 +91,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rekonsiliasi bank
     Route::get('reconciliations', [ReconciliationController::class, 'index'])->name('reconciliations.index');
     Route::middleware('role:admin|bendahara')->group(function () {
+        Route::get('reconciliations/create', [ReconciliationController::class, 'create'])->name('reconciliations.create');
         Route::post('reconciliations', [ReconciliationController::class, 'store'])->name('reconciliations.store');
-        Route::post('reconciliations/import', [ReconciliationController::class, 'import'])->name('reconciliations.import');
-        Route::post('reconciliations/{line}/match', [ReconciliationController::class, 'match'])->name('reconciliations.match');
-        Route::post('reconciliations/{line}/unmatch', [ReconciliationController::class, 'unmatch'])->name('reconciliations.unmatch');
+        Route::post('reconciliations/{reconciliation}/auto-match', [ReconciliationController::class, 'autoMatch'])->name('reconciliations.auto-match');
+        Route::post('reconciliations/{reconciliation}/match', [ReconciliationController::class, 'match'])->name('reconciliations.match');
+        Route::post('reconciliations/{reconciliation}/unmatch/{group}', [ReconciliationController::class, 'unmatch'])->name('reconciliations.unmatch');
+        Route::post('reconciliations/{reconciliation}/exclude/{line}', [ReconciliationController::class, 'exclude'])->name('reconciliations.exclude');
+        Route::post('reconciliations/{reconciliation}/complete', [ReconciliationController::class, 'complete'])->name('reconciliations.complete');
+        Route::delete('reconciliations/{reconciliation}', [ReconciliationController::class, 'destroy'])->name('reconciliations.destroy');
     });
+    Route::get('reconciliations/{reconciliation}', [ReconciliationController::class, 'show'])->name('reconciliations.show');
 
     // Laporan
     Route::get('reports/cash-flow', [ReportController::class, 'cashFlow'])->name('reports.cash-flow');
