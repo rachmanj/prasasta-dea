@@ -4,24 +4,24 @@
     <meta charset="utf-8">
     <title>Berita Acara Cash Opname {{ $opname->number }}</title>
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #000; margin: 24px; }
-        h1 { font-size: 14px; text-align: center; margin: 4px 0; }
-        h2 { font-size: 12px; text-align: center; margin: 2px 0 16px; }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 9px; color: #000; margin: 16px; }
+        h1 { font-size: 13px; text-align: center; margin: 2px 0; }
+        h2 { font-size: 11px; text-align: center; margin: 1px 0 10px; }
         .meta { margin-bottom: 16px; }
         .meta table { width: 100%; }
-        .meta td { padding: 2px 0; vertical-align: top; }
-        .section-title { font-weight: bold; margin: 16px 0 8px; text-transform: uppercase; font-size: 11px; }
+        .meta td { padding: 1px 0; vertical-align: top; }
+        .section-title { font-weight: bold; margin: 10px 0 4px; text-transform: uppercase; font-size: 10px; }
         table.data { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-        table.data th, table.data td { border: 1px solid #333; padding: 4px 6px; }
+        table.data th, table.data td { border: 1px solid #333; padding: 2px 5px; }
         table.data th { background: #f0f0f0; text-align: left; }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .summary { margin-top: 8px; }
-        .summary td { padding: 3px 0; }
-        .terbilang { margin: 12px 0 24px; font-style: italic; }
-        .signatures { width: 100%; margin-top: 32px; }
+        .summary td { padding: 2px 0; }
+        .terbilang { margin: 8px 0 14px; font-style: italic; }
+        .signatures { width: 100%; margin-top: 20px; }
         .signatures td { width: 33%; text-align: center; vertical-align: top; padding: 0 8px; }
-        .sign-line { margin-top: 64px; border-top: 1px solid #000; padding-top: 4px; }
+        .sign-line { margin-top: 48px; border-top: 1px solid #000; padding-top: 4px; }
     </style>
 </head>
 <body>
@@ -63,36 +63,43 @@
 
     <div class="section-title">Section B — Denominasi Fisik</div>
 
-    <p><strong>Uang Kertas</strong></p>
-    <table class="data">
+    <table style="width:100%; border:none;">
         <tr>
-            <th>Pecahan (Rp)</th>
-            <th class="text-center" style="width: 80px;">Lembar</th>
-            <th class="text-right" style="width: 140px;">Jumlah (Rp)</th>
+            <td style="width:50%; vertical-align:top; padding:0 4px 0 0;">
+                <p><strong>Uang Kertas</strong></p>
+                <table class="data">
+                    <tr>
+                        <th>Pecahan (Rp)</th>
+                        <th class="text-center" style="width: 80px;">Lembar</th>
+                        <th class="text-right" style="width: 140px;">Jumlah (Rp)</th>
+                    </tr>
+                    @foreach ($banknotes as $line)
+                    <tr>
+                        <td>{{ number_format($line->denomination, 0, ',', '.') }}</td>
+                        <td class="text-center">{{ $line->units }}</td>
+                        <td class="text-right">{{ number_format((float) $line->amount, 2, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                </table>
+            </td>
+            <td style="width:50%; vertical-align:top; padding:0 0 0 4px;">
+                <p><strong>Uang Logam</strong></p>
+                <table class="data">
+                    <tr>
+                        <th>Pecahan (Rp)</th>
+                        <th class="text-center" style="width: 80px;">Keping</th>
+                        <th class="text-right" style="width: 140px;">Jumlah (Rp)</th>
+                    </tr>
+                    @foreach ($coins as $line)
+                    <tr>
+                        <td>{{ number_format($line->denomination, 0, ',', '.') }}</td>
+                        <td class="text-center">{{ $line->units }}</td>
+                        <td class="text-right">{{ number_format((float) $line->amount, 2, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                </table>
+            </td>
         </tr>
-        @foreach ($banknotes as $line)
-        <tr>
-            <td>{{ number_format($line->denomination, 0, ',', '.') }}</td>
-            <td class="text-center">{{ $line->units }}</td>
-            <td class="text-right">{{ number_format((float) $line->amount, 2, ',', '.') }}</td>
-        </tr>
-        @endforeach
-    </table>
-
-    <p><strong>Uang Logam</strong></p>
-    <table class="data">
-        <tr>
-            <th>Pecahan (Rp)</th>
-            <th class="text-center" style="width: 80px;">Keping</th>
-            <th class="text-right" style="width: 140px;">Jumlah (Rp)</th>
-        </tr>
-        @foreach ($coins as $line)
-        <tr>
-            <td>{{ number_format($line->denomination, 0, ',', '.') }}</td>
-            <td class="text-center">{{ $line->units }}</td>
-            <td class="text-right">{{ number_format((float) $line->amount, 2, ',', '.') }}</td>
-        </tr>
-        @endforeach
     </table>
 
     <div class="section-title">Section C — Ringkasan</div>
