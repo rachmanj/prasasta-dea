@@ -79,6 +79,21 @@ class ReconciliationController extends Controller
         );
     }
 
+    public function uploadFile(Request $request, BankReconciliation $reconciliation): RedirectResponse
+    {
+        $request->validate(['file' => 'required|file|mimes:pdf|max:10240']);
+
+        if ($reconciliation->file_path) {
+            Storage::delete($reconciliation->file_path);
+        }
+
+        $reconciliation->update([
+            'file_path' => $request->file('file')->storeAs('reconciliations', $reconciliation->id.'.pdf'),
+        ]);
+
+        return back()->with('success', 'PDF rekening koran berhasil diunggah.');
+    }
+
     public function show(
         BankReconciliation $reconciliation,
         ReconciliationBalanceService $balanceService,

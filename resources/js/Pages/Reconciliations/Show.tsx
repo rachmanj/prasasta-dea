@@ -1,7 +1,7 @@
 import AppLayout from '@/Components/AppLayout';
 import { formatIDR } from '@/lib/format';
-import { FilePdfOutlined } from '@ant-design/icons';
-import { Head, router } from '@inertiajs/react';
+import { FilePdfOutlined, UploadOutlined } from '@ant-design/icons';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import {
     Alert,
     Button,
@@ -16,6 +16,7 @@ import {
     Table,
     Tag,
     theme,
+    Upload,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
@@ -107,9 +108,21 @@ export default function ReconciliationsShow({
     balances,
 }: Props) {
     const { token } = theme.useToken();
+    const user = usePage().props.auth.user;
+    const canManage =
+        user?.roles?.includes('admin') || user?.roles?.includes('bendahara');
+    const { data, setData, post, processing } = useForm({
+        file: null as File | null,
+    });
     const [selectedBankIds, setSelectedBankIds] = useState<number[]>([]);
     const [selectedBookIds, setSelectedBookIds] = useState<number[]>([]);
     const editable = reconciliation.status !== 'completed';
+
+    const handleUploadFile = () => {
+        post(route('reconciliations.upload-file', reconciliation.id), {
+            onSuccess: () => setData('file', null),
+        });
+    };
 
     const selectedBankNet = useMemo(
         () =>
@@ -311,16 +324,56 @@ export default function ReconciliationsShow({
                     Rekonsiliasi {reconciliation.account?.code}:{' '}
                     {dayjs(reconciliation.period).format('MMMM YYYY')}
                 </h2>
-                {reconciliation.file_path && (
-                    <Button
-                        icon={<FilePdfOutlined />}
-                        onClick={() =>
-                            window.open(route('reconciliations.file', reconciliation.id), '_blank')
-                        }
-                    >
-                        Lihat Rekening Koran
-                    </Button>
-                )}
+                <Space wrap>
+                    {reconciliation.file_path && (
+                        <Button
+                            icon={<FilePdfOutlined />}
+                            onClick={() =>
+                                window.open(route('reconciliations.file', reconciliation.id), '_blank')
+                            }
+                        >
+                            Lihat Rekening Koran
+                        </Button>
+                    )}
+                    {canManage && (
+                        <Space wrap>
+                            <Upload
+                                accept=".pdf"
+                                maxCount={1}
+                                beforeUpload={(f) => {
+                                    setData('file', f);
+                                    return false;
+                                }}
+                                onRemove={() => setData('file', null)}
+                                fileList={
+                                    data.file
+                                        ? [
+                                              {
+                                                  uid: '-1',
+                                                  name: data.file.name,
+                                                  status: 'done' as const,
+                                              },
+                                          ]
+                                        : []
+                                }
+                            >
+                                <Button icon={<UploadOutlined />}>
+                                    {reconciliation.file_path
+                                        ? 'Ganti PDF Rekening Koran'
+                                        : 'Unggah PDF Rekening Koran'}
+                                </Button>
+                            </Upload>
+                            <Button
+                                type="primary"
+                                disabled={!data.file}
+                                loading={processing}
+                                onClick={handleUploadFile}
+                            >
+                                Upload
+                            </Button>
+                        </Space>
+                    )}
+                </Space>
             </div>
 
             {reconciliation.notes && (

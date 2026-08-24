@@ -118,6 +118,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::get('reconciliations/{reconciliation}', [ReconciliationController::class, 'show'])->name('reconciliations.show');
     Route::get('reconciliations/{reconciliation}/file', [ReconciliationController::class, 'file'])->name('reconciliations.file');
+    Route::post('reconciliations/{reconciliation}/file', [ReconciliationController::class, 'uploadFile'])->name('reconciliations.upload-file')->middleware('role:admin|bendahara');
 
     // Kas opname
     Route::get('cash-opnames', [CashOpnameController::class, 'index'])->name('cash-opnames.index');
