@@ -1,8 +1,8 @@
 import AppLayout from '@/Components/AppLayout';
 import { formatIDR } from '@/lib/format';
-import { FilePdfOutlined, RollbackOutlined } from '@ant-design/icons';
-import { Head, router } from '@inertiajs/react';
-import { Button, Card, Col, Descriptions, InputNumber, Modal, Row, Space, Tag, Typography } from 'antd';
+import { FilePdfOutlined, RollbackOutlined, UploadOutlined } from '@ant-design/icons';
+import { Head, router, useForm } from '@inertiajs/react';
+import { Button, Card, Col, Descriptions, InputNumber, Modal, Row, Space, Tag, Typography, Upload } from 'antd';
 import dayjs from 'dayjs';
 
 interface Line {
@@ -28,6 +28,7 @@ interface Opname {
     status: string;
     status_badge: StatusBadge;
     notes?: string | null;
+    signed_file_path?: string | null;
     lines: Line[];
     prepared_by?: { name: string } | null;
     adjustment_transaction?: { journal_no: string } | null;
@@ -45,6 +46,10 @@ export default function CashOpnameShow({ opname, terbilang, canAdjust }: Props) 
     const diff = Number(opname.difference);
     const canPostAdjust = canAdjust && diff !== 0 && opname.status === 'open';
 
+    const { data, setData, post, processing } = useForm({
+        signed_file: null as File | null,
+    });
+
     const handleAdjust = () => {
         Modal.confirm({
             title: 'Posting Penyesuaian',
@@ -55,6 +60,12 @@ export default function CashOpnameShow({ opname, terbilang, canAdjust }: Props) 
                 new Promise<void>((resolve) => {
                     router.post(route('cash-opnames.adjust', opname.id), {}, { onFinish: () => resolve() });
                 }),
+        });
+    };
+
+    const handleUploadSigned = () => {
+        post(route('cash-opnames.signed', opname.id), {
+            onSuccess: () => setData('signed_file', null),
         });
     };
 
@@ -92,12 +103,59 @@ export default function CashOpnameShow({ opname, terbilang, canAdjust }: Props) 
                 >
                     Cetak PDF
                 </Button>
+                {opname.signed_file_path && (
+                    <Button
+                        icon={<FilePdfOutlined />}
+                        onClick={() =>
+                            window.open(route('cash-opnames.signed-file', opname.id), '_blank')
+                        }
+                    >
+                        Lihat PDF Ditandatangani
+                    </Button>
+                )}
                 {canPostAdjust && (
                     <Button type="primary" danger onClick={handleAdjust}>
                         Posting Penyesuaian
                     </Button>
                 )}
             </Space>
+
+            {canAdjust && (
+                <Card size="small" title="Upload PDF Ditandatangani" style={{ marginBottom: 16 }}>
+                    <Space wrap>
+                        <Upload
+                            accept=".pdf"
+                            maxCount={1}
+                            beforeUpload={(f) => {
+                                setData('signed_file', f);
+                                return false;
+                            }}
+                            onRemove={() => setData('signed_file', null)}
+                            fileList={
+                                data.signed_file
+                                    ? [
+                                          {
+                                              uid: '-1',
+                                              name: data.signed_file.name,
+                                              status: 'done' as const,
+                                          },
+                                      ]
+                                    : []
+                            }
+                        >
+                            <Button icon={<UploadOutlined />}>Pilih File PDF</Button>
+                        </Upload>
+                        <Button
+                            type="primary"
+                            disabled={!data.signed_file}
+                            loading={processing}
+                            onClick={handleUploadSigned}
+                        >
+                            Upload
+                        </Button>
+                    </Space>
+                </Card>
+            )}
 
             <Card title={`Kas Opname · ${opname.number}`}>
                 <Descriptions column={{ xs: 1, sm: 2 }} style={{ marginBottom: 24 }}>

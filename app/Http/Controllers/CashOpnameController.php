@@ -9,6 +9,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -100,6 +102,35 @@ class CashOpnameController extends Controller
 
         return redirect()->route('cash-opnames.show', $opname)
             ->with('success', 'Penyesuaian selisih berhasil diposting.');
+    }
+
+    public function uploadSigned(Request $request, CashOpname $opname): RedirectResponse
+    {
+        $request->validate([
+            'signed_file' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        if ($opname->signed_file_path) {
+            Storage::delete($opname->signed_file_path);
+        }
+
+        $opname->update([
+            'signed_file_path' => $request->file('signed_file')->storeAs('cash-opnames', $opname->id.'.pdf'),
+        ]);
+
+        return back()->with('success', 'PDF ditandatangani berhasil diunggah.');
+    }
+
+    public function signedFile(CashOpname $opname): StreamedResponse
+    {
+        if (! $opname->signed_file_path) {
+            abort(404);
+        }
+
+        return Storage::response(
+            $opname->signed_file_path,
+            'pcbc-'.$opname->number.'-ditandatangani.pdf',
+        );
     }
 
     private function resolveRoleLabel(CashOpname $opname): string

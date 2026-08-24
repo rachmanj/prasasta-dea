@@ -26,6 +26,7 @@ class BankReconciliation extends Model
         'completed_at',
         'completed_by',
         'notes',
+        'file_path',
     ];
 
     protected $casts = [

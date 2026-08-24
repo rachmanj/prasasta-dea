@@ -19,6 +19,7 @@ class CashOpname extends Model
         'adjustment_transaction_id',
         'prepared_by',
         'notes',
+        'signed_file_path',
     ];
 
     protected $casts = [

@@ -12,6 +12,8 @@ use App\Services\ReconciliationService;
 use DomainException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -57,8 +59,24 @@ class ReconciliationController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
+        $reconciliation->update([
+            'file_path' => $request->file('file')->storeAs('reconciliations', $reconciliation->id.'.pdf'),
+        ]);
+
         return redirect()->route('reconciliations.show', $reconciliation)
             ->with('success', 'Rekening koran berhasil diunggah dan diparse.');
+    }
+
+    public function file(BankReconciliation $reconciliation): StreamedResponse
+    {
+        if (! $reconciliation->file_path) {
+            abort(404);
+        }
+
+        return Storage::response(
+            $reconciliation->file_path,
+            'rekening-koran-'.$reconciliation->period->format('Y-m').'.pdf',
+        );
     }
 
     public function show(

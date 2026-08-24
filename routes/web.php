@@ -117,6 +117,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('reconciliations/{reconciliation}', [ReconciliationController::class, 'destroy'])->name('reconciliations.destroy');
     });
     Route::get('reconciliations/{reconciliation}', [ReconciliationController::class, 'show'])->name('reconciliations.show');
+    Route::get('reconciliations/{reconciliation}/file', [ReconciliationController::class, 'file'])->name('reconciliations.file');
 
     // Kas opname
     Route::get('cash-opnames', [CashOpnameController::class, 'index'])->name('cash-opnames.index');
@@ -126,7 +127,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:admin|bendahara')->group(function () {
         Route::post('cash-opnames', [CashOpnameController::class, 'store'])->name('cash-opnames.store');
         Route::post('cash-opnames/{opname}/adjust', [CashOpnameController::class, 'adjust'])->name('cash-opnames.adjust');
+        Route::post('cash-opnames/{opname}/signed', [CashOpnameController::class, 'uploadSigned'])->name('cash-opnames.signed');
     });
+    Route::get('cash-opnames/{opname}/signed-file', [CashOpnameController::class, 'signedFile'])->name('cash-opnames.signed-file');
 
     // Laporan
     Route::get('reports/cash-flow', [ReportController::class, 'cashFlow'])->name('reports.cash-flow');

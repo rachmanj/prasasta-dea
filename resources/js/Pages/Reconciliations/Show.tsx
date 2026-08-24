@@ -1,5 +1,6 @@
 import AppLayout from '@/Components/AppLayout';
 import { formatIDR } from '@/lib/format';
+import { FilePdfOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
 import {
     Alert,
@@ -86,6 +87,7 @@ interface Reconciliation {
     period: string;
     status: string;
     notes?: string | null;
+    file_path?: string | null;
     account?: { code: string; name: string };
 }
 
@@ -304,11 +306,21 @@ export default function ReconciliationsShow({
         <AppLayout>
             <Head title={`Rekonsiliasi ${dayjs(reconciliation.period).format('MMMM YYYY')}`} />
 
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
                 <h2 style={{ margin: 0 }}>
                     Rekonsiliasi {reconciliation.account?.code}:{' '}
                     {dayjs(reconciliation.period).format('MMMM YYYY')}
                 </h2>
+                {reconciliation.file_path && (
+                    <Button
+                        icon={<FilePdfOutlined />}
+                        onClick={() =>
+                            window.open(route('reconciliations.file', reconciliation.id), '_blank')
+                        }
+                    >
+                        Lihat Rekening Koran
+                    </Button>
+                )}
             </div>
 
             {reconciliation.notes && (
