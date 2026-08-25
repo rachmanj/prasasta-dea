@@ -18,6 +18,22 @@ export default function GuestLayout({ children }: { children: ReactNode }) {
         >
             <div style={{ width: '100%', maxWidth: 420, padding: 24 }}>
                 <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                    <div
+                        style={{
+                            display: 'inline-block',
+                            background: '#ffffff',
+                            borderRadius: 12,
+                            padding: '12px 20px',
+                            marginBottom: 14,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                        }}
+                    >
+                        <img
+                            src="/images/logo-prasasta.png"
+                            alt="Prasasta Learning Centre"
+                            style={{ width: 190, height: 'auto', display: 'block' }}
+                        />
+                    </div>
                     <Typography.Title level={3} style={{ marginBottom: 0 }}>
                         Prasasta ERP
                     </Typography.Title>
