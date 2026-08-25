@@ -5,8 +5,10 @@
     <title>Berita Acara Cash Opname {{ $opname->number }}</title>
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size: 9px; color: #000; margin: 16px; }
-        h1 { font-size: 13px; text-align: center; margin: 2px 0; }
-        h2 { font-size: 11px; text-align: center; margin: 1px 0 10px; }
+        table.letterhead { width: 100%; margin-bottom: 10px; }
+        table.letterhead td { vertical-align: middle; }
+        .letterhead-title h1 { font-size: 13px; text-align: center; margin: 0; }
+        .letterhead-title h2 { font-size: 11px; text-align: center; margin: 0; }
         .meta { margin-bottom: 16px; }
         .meta table { width: 100%; }
         .meta td { padding: 1px 0; vertical-align: top; }
@@ -25,8 +27,17 @@
     </style>
 </head>
 <body>
-    <h1>Prasasta Learning Centre</h1>
-    <h2>BERITA ACARA CASH OPNAME</h2>
+    <table class="letterhead">
+        <tr>
+            <td style="width: 150px;">
+                <img src="{{ public_path('images/logo-prasasta.png') }}" style="width: 140px; height: auto;">
+            </td>
+            <td class="letterhead-title" style="text-align: center;">
+                <h1>Prasasta Learning Centre</h1>
+                <h2>BERITA ACARA CASH OPNAME</h2>
+            </td>
+        </tr>
+    </table>
 
     <div class="meta">
         <table>
