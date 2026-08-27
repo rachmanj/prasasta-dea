@@ -35,6 +35,8 @@ class AccountSeeder extends Seeder
             ['code' => '5100', 'name' => 'Beban Honor Pengajar', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5150', 'name' => 'Beban Pembelian Barang Dagang', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5200', 'name' => 'Beban Gaji Staf', 'type' => 'expense', 'is_bank' => false],
+            ['code' => '5210', 'name' => 'Beban BPJS Kesehatan', 'type' => 'expense', 'is_bank' => false],
+            ['code' => '5220', 'name' => 'Beban BPJS Ketenagakerjaan', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5300', 'name' => 'Beban Sewa', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5400', 'name' => 'Beban Listrik / Air / Internet', 'type' => 'expense', 'is_bank' => false],
             ['code' => '5500', 'name' => 'Beban ATK & Konsumsi', 'type' => 'expense', 'is_bank' => false],
