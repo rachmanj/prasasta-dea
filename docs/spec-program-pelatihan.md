@@ -73,8 +73,8 @@ Mapping kategori Excel → COA (untuk import historis, referensi):
 
 | Kategori Excel | Akun |
 |---|---|
-| Makan · Air (galon/minum) | 5500 ATK & Konsumsi |
-| Perlengkapan ATK | 5500 ATK & Konsumsi |
+| Makan · Air (galon/minum) | 5500 Beban Konsumsi |
+| Perlengkapan ATK | 5510 Beban ATK |
 | Seragam · Training · Perlengkapan safety | 5800 Beban Pelatihan |
 | Biaya fee pelatih | 5100 Honor Pengajar |
 | Fuel | 5700 Operasional Lainnya |

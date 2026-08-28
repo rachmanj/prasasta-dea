@@ -157,7 +157,8 @@ Bikin aplikasi pencatatan keuangan sederhana buat yayasan LPK. Prioritas MVP:
   5200  Beban Gaji Staf
   5300  Beban Sewa
   5400  Beban Listrik / Air / Internet
-  5500  Beban ATK & Konsumsi
+  5500  Beban Konsumsi
+  5510  Beban ATK
   5600  Beban Pemeliharaan
   5700  Beban Operasional Lainnya
 ```
