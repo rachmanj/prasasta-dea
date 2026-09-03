@@ -111,9 +111,15 @@ class ReportController extends Controller
     {
         [$start, $end] = $this->period($request);
         $accountId = $this->resolveAccountId($request);
+        $account = Account::findOrFail($accountId);
 
         return Excel::download(
-            new GeneralLedgerExport($reports->generalLedger($accountId, $start, $end), $start, $end),
+            new GeneralLedgerExport(
+                $reports->generalLedger($accountId, $start, $end),
+                $start,
+                $end,
+                ['code' => $account->code, 'name' => $account->name]
+            ),
             "buku-besar-{$start}-{$end}.xlsx"
         );
     }
