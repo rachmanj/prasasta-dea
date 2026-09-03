@@ -1,5 +1,5 @@
 import AppLayout from '@/Components/AppLayout';
-import { formatIDR } from '@/lib/format';
+import { formatIDR, formatIDR2 } from '@/lib/format';
 import { DownloadOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
 import { Button, Card, DatePicker, Select, Space, Statistic, Table, Typography } from 'antd';
@@ -55,7 +55,7 @@ export default function GeneralLedger({ accounts, accountId, start, end, data }:
         );
     };
 
-    const moneyCell = (v: number) => (Number(v) > 0 ? formatIDR(v) : '-');
+    const moneyCell = (v: number) => (Number(v) > 0 ? formatIDR2(v) : '-');
 
     const columns = [
         {
@@ -90,7 +90,7 @@ export default function GeneralLedger({ accounts, accountId, start, end, data }:
             dataIndex: 'balance',
             key: 'balance',
             align: 'right' as const,
-            render: (v: number) => formatIDR(v),
+            render: (v: number) => formatIDR2(v),
         },
     ];
 
@@ -143,7 +143,7 @@ export default function GeneralLedger({ accounts, accountId, start, end, data }:
                 <Statistic
                     title="Saldo Akhir"
                     value={data.ending_balance}
-                    formatter={(v) => formatIDR(Number(v))}
+                    formatter={(v) => formatIDR2(Number(v))}
                     style={{ marginBottom: 16 }}
                 />
 

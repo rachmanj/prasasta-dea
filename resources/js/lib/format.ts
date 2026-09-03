@@ -7,6 +7,16 @@ export function formatIDR(value: number | string | null | undefined): string {
     }).format(Number.isFinite(n) ? n : 0);
 }
 
+export function formatIDR2(value: number | string | null | undefined): string {
+    const n = typeof value === 'string' ? parseFloat(value) : value ?? 0;
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(Number.isFinite(n) ? n : 0);
+}
+
 export function formatNumber(value: number | string | null | undefined): string {
     const n = typeof value === 'string' ? parseFloat(value) : value ?? 0;
     return new Intl.NumberFormat('id-ID').format(Number.isFinite(n) ? n : 0);
